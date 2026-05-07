@@ -1,7 +1,7 @@
 {
   "name": "ep_syntax_highlighting",
-  "version": "0.1.0",
-  "description": "Whole-pad syntax highlighting for Etherpad via highlight.js. Auto-detect or pick a language; theme follows the editor's color scheme.",
+  "version": "0.3.0",
+  "description": "Whole-pad syntax highlighting for Etherpad via highlight.js. Auto-detect or pick a language; tokens are painted via the CSS Custom Highlights API — no DOM mutation, no caret drift.",
   "license": "Apache-2.0",
   "author": {
     "name": "John McLear",
