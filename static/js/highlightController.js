@@ -60,6 +60,10 @@ const activeLineIdx = () => {
 
 const handleWorkerResult = (data) => {
   if (!aceContext) return;
+  // Ignore stale worker results that arrived after the user disabled
+  // highlighting — except the synthetic empty-ranges call from tokenize()
+  // that uses _allowDisabledClear to drive the clear-via-diff path.
+  if (!isHighlightingEnabled() && !data._allowDisabledClear) return;
   const newByLine = groupByLine(data.ranges || []);
   const skip = activeLineIdx();
 
@@ -118,7 +122,25 @@ const ensureWorker = () => {
   return worker;
 };
 
+const isHighlightingEnabled = () => {
+  if (state.language === 'off') return false;
+  try {
+    if (window.localStorage &&
+        window.localStorage.getItem('ep_syntax_highlighting.user_enabled') === 'false') {
+      return false;
+    }
+  } catch (_e) { /* localStorage unavailable */ }
+  return true;
+};
+
 const tokenize = () => {
+  if (!isHighlightingEnabled()) {
+    // Run the apply path with empty ranges so previously-painted lines get
+    // CLEAR ops via the standard diff. This is the same code path as a
+    // language change to one whose tokenizer happens to find no tokens.
+    handleWorkerResult({ok: true, ranges: [], _allowDisabledClear: true});
+    return;
+  }
   const text = padText();
   const allLines = text.split('\n');
   if (allLines.length > MAX_LINES) {
@@ -177,25 +199,10 @@ exports.setState = (next) => {
   state = next;
   overruns = 0;
   degraded = false;
-  // Force a full clear of every previously-painted line (except the active
-  // one, which we never disturb). The next tokenize will paint fresh tokens
-  // from scratch.
-  if (aceContext && everApplied.size) {
-    const skip = activeLineIdx();
-    const clears = [];
-    for (const line of everApplied) {
-      if (line !== skip) clears.push({line, ranges: null});
-    }
-    if (clears.length) {
-      aceContext.ace.callWithAce((ace) => {
-        if (typeof ace.ace_applyTokenAttributesPerLine === 'function') {
-          ace.ace_applyTokenAttributesPerLine(clears);
-        }
-      }, 'syntax-clear-on-lang-change', true);
-    }
-    for (const u of clears) everApplied.delete(u.line);
-  }
-  previousByLine.clear();
+  // Don't clear previousByLine — the next tokenize's diff loop will issue
+  // CLEAR ops for every previously-painted line that isn't in the new
+  // tokenize result, using the same code path as during normal updates.
+  // Clearing previousByLine here would lose that tracking.
   schedule();
 };
 

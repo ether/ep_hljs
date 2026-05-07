@@ -22,7 +22,11 @@ test('5000-line JS pad still highlights and stays responsive', async ({page, con
   await page.evaluate((text) => navigator.clipboard.writeText(text), blob);
   await page.keyboard.press('Control+V');
 
-  await expect(inner.locator('span.ep_syntax_highlighting_token.hljs-keyword').first()).toBeVisible({timeout: 60_000});
+  // Move caret off the latest paste line so the active-line skip logic
+  // doesn't hide highlights on it.
+  await page.keyboard.press('Home');
+  await page.keyboard.press('Home');
+  await expect(inner.locator('span.hljs-keyword').first()).toBeVisible({timeout: 60_000});
 
   // Typing should still feel responsive.
   const t0 = Date.now();

@@ -60,6 +60,25 @@ exports.postAceInit = (hookName, context) => {
   themeBridge.start();
   document.addEventListener('ep_syntax_highlighting:change', (e) => controller.setState(e.detail));
   setInterval(() => controller.tickAutoRedetect(), 1000);
+
+  // Per-user enable/disable checkbox in the pad settings panel.
+  const userToggle = document.getElementById('ep_syntax_highlighting_user_enabled');
+  if (userToggle) {
+    try {
+      const stored = window.localStorage.getItem('ep_syntax_highlighting.user_enabled');
+      userToggle.checked = stored !== 'false';
+    } catch (_e) { /* localStorage unavailable */ }
+    userToggle.addEventListener('change', () => {
+      try {
+        window.localStorage.setItem('ep_syntax_highlighting.user_enabled',
+            userToggle.checked ? 'true' : 'false');
+      } catch (_e) { /* ignore */ }
+      // Re-trigger the controller: setState clears applied attrs, then
+      // schedule fires; if user just disabled, tokenize bails early.
+      controller.setState({...initial, language: clientVars.ep_syntax_highlighting.language,
+        autoDetect: clientVars.ep_syntax_highlighting.autoDetect});
+    });
+  }
 };
 
 exports.aceEditEvent = (_hookName, _context) => {
@@ -74,8 +93,15 @@ exports.aceEditorCSS = () => [
 const ATTR_KEY = 'syntax-tk';
 
 exports.aceAttribsToClasses = (hookName, context) => {
-  if (context.key === ATTR_KEY && context.value) return [context.value];
-  return [];
+  if (context.key !== ATTR_KEY) return [];
+  const v = context.value;
+  if (!v) return [];
+  // The sentinel '__cleared__' is rendered as a no-op class. Returning a
+  // distinct non-empty class forces Etherpad's renderer to replace the
+  // previous hljs-* class with this one (rather than retaining the old
+  // class because the hook returned []).
+  if (v === '__cleared__') return ['ep_syntax_highlighting_cleared'];
+  return [v];
 };
 
 // Applies per-line token-attribute updates. Each entry is either
@@ -91,9 +117,14 @@ const applyTokenAttributesPerLine = function (updates) {
     const lineText = rep.lines.atIndex(u.line).text || '';
     const lineLen = lineText.length;
     if (lineLen === 0) continue;
-    // Clear this line's syntax-tk attributes.
+    // Clear this line's syntax-tk attributes by setting them to a sentinel
+    // value. Setting to '' is meant to remove the attribute, but in practice
+    // Etherpad's render seems to retain the previous CSS class until a
+    // distinct value is observed. Using a sentinel forces a re-render and
+    // our aceAttribsToClasses hook returns no class for it.
     try {
-      dam.setAttributesOnRange([u.line, 0], [u.line, lineLen], [[ATTR_KEY, '']]);
+      dam.setAttributesOnRange([u.line, 0], [u.line, lineLen],
+          [[ATTR_KEY, '__cleared__']]);
     } catch (_e) { continue; }
     if (!u.ranges) continue;
     for (const r of u.ranges) {

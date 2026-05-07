@@ -17,3 +17,8 @@
 #innerdocbody [class*="author-a"] {
   background-color: transparent !important;
 }
+
+/* Spans whose syntax-tk attribute was explicitly cleared. No-op styling. */
+#innerdocbody .ep_syntax_highlighting_cleared {
+  color: inherit;
+}

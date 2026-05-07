@@ -15,6 +15,7 @@
         "clientVars": "ep_syntax_highlighting/index",
         "socketio": "ep_syntax_highlighting/index",
         "eejsBlock_editbarMenuLeft": "ep_syntax_highlighting/index",
+        "eejsBlock_mySettings": "ep_syntax_highlighting/index",
         "getLineHTMLForExport": "ep_syntax_highlighting/index",
         "stylesForExport": "ep_syntax_highlighting/index"
       }

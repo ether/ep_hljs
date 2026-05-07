@@ -44,6 +44,11 @@ exports.eejsBlock_editbarMenuLeft = (hookName, args, cb) => {
   cb();
 };
 
+exports.eejsBlock_mySettings = (hookName, args, cb) => {
+  args.content += eejs.require('ep_syntax_highlighting/templates/userSettings.ejs', {}, module);
+  cb();
+};
+
 exports.getLineHTMLForExport = async (hookName, context) => {
   if (!context || typeof context.lineContent !== 'string') return;
   context.lineContent = await renderer.renderLine(context.padId, context.lineContent);

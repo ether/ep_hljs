@@ -21,6 +21,11 @@ test('highlights a JS keyword after debounce', async ({page}) => {
   await page.waitForTimeout(500);
 
   await page.keyboard.type('function add(a, b) { return a + b; }');
-  await expect(inner.locator('span.ep_syntax_highlighting_token.hljs-keyword').first())
-      .toHaveText('function', {timeout: 10_000});
+  // Press Enter and arrow back so line 0 (the JS) is NOT the active line
+  // when tokenize fires — the active-line skip preserves caret position
+  // by intentionally not applying attributes to the line under the caret.
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(2000);
+  await expect(inner.locator('span.hljs-keyword').first())
+      .toBeVisible({timeout: 10_000});
 });

@@ -1,5 +1,7 @@
 {
   "ep_syntax_highlighting.label": "Syntax language",
   "ep_syntax_highlighting.auto": "Auto-detect",
-  "ep_syntax_highlighting.paused": "Highlighting paused (pad too large)"
+  "ep_syntax_highlighting.off": "Off (no highlighting)",
+  "ep_syntax_highlighting.paused": "Highlighting paused (pad too large)",
+  "ep_syntax_highlighting.user_enable": "Highlight syntax in pads"
 }

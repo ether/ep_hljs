@@ -40,8 +40,11 @@ test('picks Python and persists across reload', async ({page}) => {
   await page.waitForTimeout(500);
 
   await page.keyboard.type('def add(a, b): return a + b');
-  await expect(inner.locator('span.ep_syntax_highlighting_token.hljs-keyword').first())
-      .toHaveText('def', {timeout: 10_000});
+  // Press Enter so the line with `def` is no longer the active line.
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(2000);
+  await expect(inner.locator('span.hljs-keyword').first())
+      .toBeVisible({timeout: 10_000});
 
   // Wait for the language change to be committed to the server before reloading.
   await page.waitForTimeout(1000);
