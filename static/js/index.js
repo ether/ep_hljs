@@ -3,9 +3,28 @@
 const controller = require('ep_syntax_highlighting/static/js/highlightController');
 const themeBridge = require('ep_syntax_highlighting/static/js/themeBridge');
 const socketio = require('ep_etherpad-lite/static/js/socketio');
+// Sub-path import keeps the client bundle clean. Top-level
+// `ep_plugin_helpers` would pull in server-only helpers (eejs, Settings)
+// that esbuild can't resolve for the browser.
+const {padToggle} = require('ep_plugin_helpers/pad-toggle');
 
 let socket = null;
 let currentPadId = null;
+
+// Same config as the server-side instance — must agree on pluginName,
+// settingId, l10nId, defaultLabel, and defaultEnabled for the checkbox ids
+// and clientVars lookup to line up.
+const highlightToggle = padToggle({
+  pluginName: 'ep_syntax_highlighting',
+  settingId: 'syntax-highlighting',
+  l10nId: 'ep_syntax_highlighting.user_enable',
+  defaultLabel: 'Highlight syntax in pads',
+  defaultEnabled: true,
+});
+
+// Re-export so the helper sees pad-wide broadcasts and refreshes our state
+// when another user toggles the pad-wide checkbox.
+exports.handleClientMessage_CLIENT_MESSAGE = highlightToggle.handleClientMessage_CLIENT_MESSAGE;
 
 const onLanguageChanged = (msg) => {
   const sel = document.getElementById('ep_syntax_highlighting_select');
@@ -61,24 +80,28 @@ exports.postAceInit = (hookName, context) => {
   document.addEventListener('ep_syntax_highlighting:change', (e) => controller.setState(e.detail));
   setInterval(() => controller.tickAutoRedetect(), 1000);
 
-  // Per-user enable/disable checkbox in the pad settings panel.
-  const userToggle = document.getElementById('ep_syntax_highlighting_user_enabled');
-  if (userToggle) {
-    try {
-      const stored = window.localStorage.getItem('ep_syntax_highlighting.user_enabled');
-      userToggle.checked = stored !== 'false';
-    } catch (_e) { /* localStorage unavailable */ }
-    userToggle.addEventListener('change', () => {
+  // Parallel User Settings + Pad Wide Settings checkboxes for "Highlight
+  // syntax in pads". The helper renders the checkboxes, persists the
+  // per-user choice, and broadcasts pad-wide changes. We mirror the
+  // resolved value into the same localStorage key the controller reads
+  // (`isHighlightingEnabled` in highlightController.js) so the existing
+  // tokenize gate keeps working unchanged.
+  highlightToggle.init({
+    onChange: (enabled) => {
       try {
-        window.localStorage.setItem('ep_syntax_highlighting.user_enabled',
-            userToggle.checked ? 'true' : 'false');
-      } catch (_e) { /* ignore */ }
+        window.localStorage.setItem(
+            'ep_syntax_highlighting.user_enabled', enabled ? 'true' : 'false');
+      } catch (_e) { /* localStorage unavailable */ }
       // Re-trigger the controller: setState clears applied attrs, then
       // schedule fires; if user just disabled, tokenize bails early.
-      controller.setState({...initial, language: clientVars.ep_syntax_highlighting.language,
-        autoDetect: clientVars.ep_syntax_highlighting.autoDetect});
-    });
-  }
+      const cv = (typeof clientVars !== 'undefined' && clientVars.ep_syntax_highlighting) || {};
+      controller.setState({
+        ...initial,
+        language: cv.language != null ? cv.language : initial.language,
+        autoDetect: cv.autoDetect != null ? cv.autoDetect : initial.autoDetect,
+      });
+    },
+  });
 };
 
 exports.aceEditEvent = (_hookName, call) => {
