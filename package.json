@@ -3,18 +3,38 @@
   "version": "0.0.1",
   "description": "Whole-pad syntax highlighting for Etherpad via highlight.js. Auto-detect or pick a language; theme follows the editor's color scheme.",
   "license": "Apache-2.0",
-  "author": {"name": "John McLear", "email": "john@mclear.co.uk"},
+  "author": {
+    "name": "John McLear",
+    "email": "john@mclear.co.uk"
+  },
   "homepage": "https://github.com/ether/ep_syntax_highlighting#readme",
-  "bugs": {"url": "https://github.com/ether/ep_syntax_highlighting/issues"},
-  "repository": {"type": "git", "url": "https://github.com/ether/ep_syntax_highlighting.git"},
-  "engines": {"node": ">=18.0.0"},
-  "keywords": ["ep", "etherpad", "plugin", "syntax-highlighting", "highlight.js"],
-  "funding": {"type": "individual", "url": "https://etherpad.org/"},
+  "bugs": {
+    "url": "https://github.com/ether/ep_syntax_highlighting/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ether/ep_syntax_highlighting.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "ep",
+    "etherpad",
+    "plugin",
+    "syntax-highlighting",
+    "highlight.js"
+  ],
+  "funding": {
+    "type": "individual",
+    "url": "https://etherpad.org/"
+  },
   "dependencies": {
     "highlight.js": "^11.10.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",
+    "esbuild": "^0.28.0",
     "eslint": "^8.57.1",
     "eslint-config-etherpad": "^4.0.5",
     "mocha": "^10.7.3",
@@ -24,6 +44,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "lint:fix": "eslint --fix .",
+    "postinstall": "node -e \"require('child_process').execSync(require('path').resolve('node_modules/.bin/esbuild') + ' node_modules/highlight.js/lib/common.js --bundle --global-name=hljs --format=iife --minify --outfile=static/js/vendor/hljs.min.js', {stdio: 'inherit'})\""
   }
 }

@@ -1,0 +1,31 @@
+'use strict';
+
+module.exports = {
+  DEBOUNCE_MS: 200,
+  DEGRADED_DEBOUNCE_MS: 600,
+  BUDGET_MS: 50,
+  BUDGET_OVERRUN_LIMIT: 3,
+  MAX_LINES: 5000,
+  AUTO_REDETECT_MS: 5000,
+  WORKER_LANGUAGES: [
+    'javascript',
+    'typescript',
+    'python',
+    'java',
+    'c',
+    'cpp',
+    'csharp',
+    'go',
+    'ruby',
+    'rust',
+    'php',
+    'bash',
+    'sql',
+    'json',
+    'yaml',
+    'xml',
+    'html',
+    'css',
+    'markdown',
+  ],
+};
