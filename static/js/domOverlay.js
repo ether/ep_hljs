@@ -16,7 +16,7 @@ const escapeAttr = (s) => s.replace(/[^A-Za-z0-9_-]/g, '');
 const stripExisting = (lineEl) => {
   const spans = lineEl.querySelectorAll('span.ep_syntax_highlighting_token');
   spans.forEach((s) => {
-    const txt = document.createTextNode(s.textContent);
+    const txt = lineEl.ownerDocument.createTextNode(s.textContent);
     s.replaceWith(txt);
   });
   lineEl.normalize();
@@ -56,6 +56,16 @@ const groupByLine = (ranges) => {
 const allLineEls = (doc) => doc.querySelectorAll('div[id^="magicdomid"]');
 
 const applyChunked = (doc, byLine) => {
+  // First, strip painted lines that have NO ranges in the new payload —
+  // otherwise stale spans from a previous tokenization survive.
+  doc.querySelectorAll(`.${PAINTED_CLASS}`).forEach((el) => {
+    const m = el.id.match(/^magicdomid(\d+)$/);
+    if (m && !byLine.has(parseInt(m[1], 10))) {
+      stripExisting(el);
+    }
+  });
+
+  // Then apply new ranges, chunked.
   const lines = allLineEls(doc);
   const work = [];
   byLine.forEach((ranges, idx) => {
@@ -104,10 +114,7 @@ exports.showPausedBadge = (visible) => {
     badge.id = 'ep_syntax_highlighting_paused_badge';
     badge.setAttribute('data-l10n-id', 'ep_syntax_highlighting.paused');
     badge.textContent = 'Highlighting paused';
-    badge.style.marginLeft = '6px';
-    badge.style.fontStyle = 'italic';
-    badge.style.opacity = '0.7';
-    sel.parentNode.appendChild(badge);
+    sel.insertAdjacentElement('afterend', badge);
   } else if (!visible && badge) {
     badge.remove();
   }

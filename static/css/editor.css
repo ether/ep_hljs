@@ -2,3 +2,9 @@
 .ep_syntax_highlighting_painted span.ep_syntax_highlighting_token {
   font-family: inherit;
 }
+
+#ep_syntax_highlighting_paused_badge {
+  margin-left: 6px;
+  font-style: italic;
+  opacity: 0.7;
+}
