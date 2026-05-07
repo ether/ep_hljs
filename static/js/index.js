@@ -1,6 +1,7 @@
 'use strict';
 
 const controller = require('ep_syntax_highlighting/static/js/highlightController');
+const themeBridge = require('ep_syntax_highlighting/static/js/themeBridge');
 
 let socket = null;
 let currentPadId = null;
@@ -38,6 +39,7 @@ exports.postAceInit = (hookName, context) => {
   }
 
   controller.start(context, initial);
+  themeBridge.start(context);
   document.addEventListener('ep_syntax_highlighting:change', (e) => controller.setState(e.detail));
   setInterval(() => controller.tickAutoRedetect(), 1000);
 };
