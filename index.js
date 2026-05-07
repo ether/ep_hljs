@@ -1,6 +1,7 @@
 'use strict';
 
 const store = require('./lib/padLanguageStore');
+const eejs = require('ep_etherpad-lite/node/eejs/');
 
 exports.padRemove = async (hookName, {pad}) => {
   await store.remove(pad.id);
@@ -35,4 +36,9 @@ exports.socketio = (hookName, {io}) => {
       }
     });
   });
+};
+
+exports.eejsBlock_editbarMenuLeft = (hookName, args, cb) => {
+  args.content += eejs.require('ep_syntax_highlighting/templates/editbarButtons.ejs', {}, module);
+  cb();
 };

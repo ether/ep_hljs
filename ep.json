@@ -9,7 +9,8 @@
         "padRemove": "ep_syntax_highlighting/index",
         "padCopy": "ep_syntax_highlighting/index",
         "clientVars": "ep_syntax_highlighting/index",
-        "socketio": "ep_syntax_highlighting/index"
+        "socketio": "ep_syntax_highlighting/index",
+        "eejsBlock_editbarMenuLeft": "ep_syntax_highlighting/index"
       }
     }
   ]
