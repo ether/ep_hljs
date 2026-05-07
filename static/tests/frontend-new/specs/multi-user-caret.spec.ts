@@ -63,6 +63,7 @@ test('user-reported repro: const foo = "bar"; with JS, B edits "bar" while A is 
   const pageA = await ctxA.newPage();
   await setupPad(pageA);
   await pickLanguage(pageA, 'javascript');
+  await inner(pageA).locator('body').click();
   await page_typeOnA(pageA);
   await pageA.waitForTimeout(2000);
 
@@ -116,6 +117,7 @@ test('user-reported repro 2: A at end of line 0, B inserts "my " before test on 
   const pageA = await ctxA.newPage();
   await setupPad(pageA);
   await pickLanguage(pageA, 'javascript');
+  await inner(pageA).locator('body').click();
 
   // Type the user's exact content: full line of code on line 0, Enter, then nothing on line 1.
   await pageA.keyboard.type('const foo = "bar"; // test');

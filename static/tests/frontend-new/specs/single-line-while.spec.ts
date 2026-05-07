@@ -30,6 +30,7 @@ const pickLanguage = async (page: Page, value: string) => {
 test('single line "while" with JS gets ::highlight(hljs-keyword)', async ({page}) => {
   await setupPad(page);
   await pickLanguage(page, 'javascript');
+  await inner(page).locator('body').click();
   await page.keyboard.type('while');
   await page.waitForTimeout(2000);
   await expectHighlightWithin(page, 'hljs-keyword', 5_000);
@@ -40,6 +41,7 @@ test('single line "while" with JS gets ::highlight(hljs-keyword)', async ({page}
 test('single line "while" caret stays after typing', async ({page}) => {
   await setupPad(page);
   await pickLanguage(page, 'javascript');
+  await inner(page).locator('body').click();
   await page.keyboard.type('while');
   await page.waitForTimeout(2000);
   await page.keyboard.type('X');
