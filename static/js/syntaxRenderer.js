@@ -135,7 +135,7 @@ exports.acePostWriteDomLineHTML = (hookName, context) => {
   renderLine(context.node);
 };
 
-exports.__test_internal = {
+exports.__test_internal = { // eslint-disable-line camelcase
   cache,
   getState: () => ({...state}),
 };
