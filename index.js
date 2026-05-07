@@ -2,6 +2,7 @@
 
 const store = require('./lib/padLanguageStore');
 const eejs = require('ep_etherpad-lite/node/eejs/');
+const renderer = require('./lib/exportRenderer');
 
 exports.padRemove = async (hookName, {pad}) => {
   await store.remove(pad.id);
@@ -42,3 +43,10 @@ exports.eejsBlock_editbarMenuLeft = (hookName, args, cb) => {
   args.content += eejs.require('ep_syntax_highlighting/templates/editbarButtons.ejs', {}, module);
   cb();
 };
+
+exports.getLineHTMLForExport = async (hookName, context) => {
+  if (!context || typeof context.lineContent !== 'string') return;
+  context.lineContent = await renderer.renderLine(context.padId, context.lineContent);
+};
+
+exports.stylesForExport = async () => await renderer.stylesForExport();
