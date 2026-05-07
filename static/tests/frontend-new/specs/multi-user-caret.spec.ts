@@ -110,14 +110,7 @@ const page_typeOnA = async (pageA: Page) => {
   await pageA.keyboard.type('const foo = "bar";');
 };
 
-// KNOWN-FAILING: when the active line is line 1 (after Enter) and we apply
-// attributes to line 0, subsequent navigation back to line 0 (ArrowUp +
-// End) ends up at [0, 0] instead of [0, 26]. Root cause TBD — appears
-// independent of our setAttributesOnRange call site (logging shows our
-// hooks don't fire on the receiver after B's edit, yet caret moves).
-// Tracking as a regression test that should pass when the underlying
-// bug is fixed.
-test.fixme('user-reported repro 2: A at end of line 0, B inserts "my " before test on line 0', async ({browser}) => {
+test('user-reported repro 2: A at end of line 0, B inserts "my " before test on line 0', async ({browser}) => {
   // ---- USER A ----
   const ctxA = await browser.newContext();
   const pageA = await ctxA.newPage();
