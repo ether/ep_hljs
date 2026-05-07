@@ -81,8 +81,14 @@ exports.postAceInit = (hookName, context) => {
   }
 };
 
-exports.aceEditEvent = (_hookName, _context) => {
-  controller.onEdit();
+exports.aceEditEvent = (_hookName, call) => {
+  // Only trigger re-tokenize on actual text changes. Navigation events
+  // (Home, End, arrow keys) and selection-only events should NOT cause us
+  // to apply attributes — applying setAttributesOnRange on a range that
+  // crosses the caret moves the caret to the start of the range.
+  if (call && call.callstack && call.callstack.docTextChanged) {
+    controller.onEdit();
+  }
 };
 
 exports.aceEditorCSS = () => [

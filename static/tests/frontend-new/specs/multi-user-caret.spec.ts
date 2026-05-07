@@ -107,8 +107,62 @@ test('user-reported repro: const foo = "bar"; with JS, B edits "bar" while A is 
 });
 
 const page_typeOnA = async (pageA: Page) => {
-  // Use evaluate-based dispatch of literal characters? No — keyboard.type
-  // is fine; just need to wrap because the quotes in the string require
-  // shift handling that Playwright handles for us when using `type`.
   await pageA.keyboard.type('const foo = "bar";');
 };
+
+// KNOWN-FAILING: when the active line is line 1 (after Enter) and we apply
+// attributes to line 0, subsequent navigation back to line 0 (ArrowUp +
+// End) ends up at [0, 0] instead of [0, 26]. Root cause TBD — appears
+// independent of our setAttributesOnRange call site (logging shows our
+// hooks don't fire on the receiver after B's edit, yet caret moves).
+// Tracking as a regression test that should pass when the underlying
+// bug is fixed.
+test.fixme('user-reported repro 2: A at end of line 0, B inserts "my " before test on line 0', async ({browser}) => {
+  // ---- USER A ----
+  const ctxA = await browser.newContext();
+  const pageA = await ctxA.newPage();
+  await setupPad(pageA);
+  await pickLanguage(pageA, 'javascript');
+
+  // Type the user's exact content: full line of code on line 0, Enter, then nothing on line 1.
+  await pageA.keyboard.type('const foo = "bar"; // test');
+  await pageA.keyboard.press('Enter');
+  await pageA.waitForTimeout(2000);
+
+  const padUrl = pageA.url();
+
+  // Move A's caret to end of line 0.
+  await pageA.keyboard.press('ArrowUp'); // back to line 0
+  await pageA.keyboard.press('End');
+  await pageA.waitForTimeout(500);
+  const beforeA = await repSelStart(pageA);
+  console.log('A caret before B edits:', beforeA);
+  expect(beforeA).toEqual([0, 26]);
+
+  // ---- USER B ----
+  const ctxB = await browser.newContext();
+  const pageB = await ctxB.newPage();
+  await pageB.goto(padUrl);
+  await pageB.waitForTimeout(2000);
+
+  // Position B's caret at the beginning of "test" on line 0.
+  // Line 0 is "const foo = \"bar\"; // test" (26 chars; "test" starts at col 22).
+  await inner(pageB).locator('body').click();
+  await pageB.keyboard.press('Control+Home');
+  // Walk forward 22 chars to land before "t" of "test".
+  for (let i = 0; i < 22; i++) await pageB.keyboard.press('ArrowRight');
+  await pageB.waitForTimeout(500);
+  await pageB.keyboard.type('my ');
+  await pageB.waitForTimeout(2500);
+
+  // A's caret should still be at the END of line 0 (now col 29 after B's
+  // 3-char insertion that was BEFORE A's position).
+  const afterA = await repSelStart(pageA);
+  // Either [0, 29] (rebased forward) or [0, 26] (unchanged) — either is
+  // correct; what matters is it's NOT [0, 0].
+  expect(afterA).not.toEqual([0, 0]);
+  expect(afterA![0]).toBe(0);
+
+  await ctxA.close();
+  await ctxB.close();
+});
