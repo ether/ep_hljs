@@ -1,5 +1,6 @@
-import {expect, test} from '@playwright/test';
+import {test} from '@playwright/test';
 import {goToNewPad} from 'ep_etherpad-lite/tests/frontend-new/helper/padHelper';
+import {expectHighlightWithin} from '../helper/highlights';
 
 test('highlights a JS keyword after debounce', async ({page}) => {
   await goToNewPad(page);
@@ -17,15 +18,10 @@ test('highlights a JS keyword after debounce', async ({page}) => {
   await inner.locator('body').click();
   await page.keyboard.press('Control+A');
   await page.keyboard.press('Delete');
-  // Give the editor a moment to settle before typing new content.
   await page.waitForTimeout(500);
 
   await page.keyboard.type('function add(a, b) { return a + b; }');
-  // Press Enter and arrow back so line 0 (the JS) is NOT the active line
-  // when tokenize fires — the active-line skip preserves caret position
-  // by intentionally not applying attributes to the line under the caret.
   await page.keyboard.press('Enter');
   await page.waitForTimeout(2000);
-  await expect(inner.locator('span.hljs-keyword').first())
-      .toBeVisible({timeout: 10_000});
+  await expectHighlightWithin(page, 'hljs-keyword', 10_000);
 });

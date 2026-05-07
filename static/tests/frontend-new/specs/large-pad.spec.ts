@@ -1,5 +1,6 @@
 import {expect, test} from '@playwright/test';
 import {goToNewPad} from 'ep_etherpad-lite/tests/frontend-new/helper/padHelper';
+import {expectHighlightWithin} from '../helper/highlights';
 
 test('5000-line JS pad still highlights and stays responsive', async ({page, context}) => {
   test.setTimeout(180_000);
@@ -26,7 +27,7 @@ test('5000-line JS pad still highlights and stays responsive', async ({page, con
   // doesn't hide highlights on it.
   await page.keyboard.press('Home');
   await page.keyboard.press('Home');
-  await expect(inner.locator('span.hljs-keyword').first()).toBeVisible({timeout: 60_000});
+  await expectHighlightWithin(page, 'hljs-keyword', 60_000);
 
   // Typing should still feel responsive.
   const t0 = Date.now();
