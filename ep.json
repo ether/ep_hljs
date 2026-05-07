@@ -4,6 +4,10 @@
       "name": "main",
       "client_hooks": {
         "postAceInit": "ep_syntax_highlighting/static/js/index"
+      },
+      "hooks": {
+        "padRemove": "ep_syntax_highlighting/index",
+        "padCopy": "ep_syntax_highlighting/index"
       }
     }
   ]
