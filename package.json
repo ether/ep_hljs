@@ -38,6 +38,7 @@
     "esbuild": "^0.28.0",
     "eslint": "^8.57.1",
     "eslint-config-etherpad": "^4.0.5",
+    "jsdom": "^25.0.1",
     "mocha": "^10.7.3",
     "socket.io-client": "^4.8.1",
     "supertest": "^7.0.0",
