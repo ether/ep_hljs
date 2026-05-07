@@ -21,6 +21,9 @@ const ensureWorker = () => {
   worker.addEventListener('message', (e) => {
     const t0 = performance.now();
     if (!e.data || !e.data.ok) return;
+    // `e.data.id` is sent but not validated: tokenize() only fires from schedule()
+    // which serializes posts behind a debounce, and the worker processes messages
+    // FIFO. Any future fast-path that bypasses the debounce must add a guard.
     overlay.apply(aceContext, e.data.ranges);
     const dt = performance.now() - t0;
     if (dt > BUDGET_MS) {
@@ -28,6 +31,7 @@ const ensureWorker = () => {
       if (overruns >= BUDGET_OVERRUN_LIMIT) degraded = true;
     } else {
       overruns = Math.max(0, overruns - 1);
+      if (overruns === 0) degraded = false;
     }
   });
   worker.addEventListener('error', (err) => {

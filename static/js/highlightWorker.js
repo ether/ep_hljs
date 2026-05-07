@@ -21,6 +21,9 @@ self.addEventListener('message', (e) => {
       lang = probe.language || 'plaintext';
     }
     const ranges = [];
+    // NOTE: Each line is highlighted independently. Multi-line constructs
+    // (block comments, template literals spanning lines) lose their state
+    // at line boundaries. Documented v1 limitation.
     for (let i = 0; i < lines.length; i++) {
       const lineText = lines[i];
       if (!lineText.length) continue;
@@ -51,9 +54,10 @@ self.addEventListener('message', (e) => {
             ranges.push({
               line: i + lineOffset,
               start: t.start,
-              end: t.start + t.text.length,
+              end: plainAccum.length,
               cls: t.cls,
             });
+            if (stack.length) stack[stack.length - 1].text += t.text;
           }
         }
         pos = m.index + m[0].length;

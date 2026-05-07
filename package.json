@@ -45,6 +45,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "postinstall": "node -e \"require('child_process').execSync(require('path').resolve('node_modules/.bin/esbuild') + ' node_modules/highlight.js/lib/common.js --bundle --global-name=hljs --format=iife --minify --outfile=static/js/vendor/hljs.min.js', {stdio: 'inherit'})\""
+    "build:vendor": "node scripts/build-vendor.js",
+    "postinstall": "node scripts/build-vendor.js"
   }
 }

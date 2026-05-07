@@ -42,6 +42,6 @@ exports.postAceInit = (hookName, context) => {
   setInterval(() => controller.tickAutoRedetect(), 1000);
 };
 
-exports.aceEditEvent = (hookName, context) => {
+exports.aceEditEvent = (_hookName, _context) => {
   controller.onEdit();
 };
