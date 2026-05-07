@@ -6,5 +6,5 @@ require('eslint-config-etherpad/patch/modern-module-resolution');
 module.exports = {
   root: true,
   extends: 'etherpad/plugin',
-  ignorePatterns: ['node_modules', 'static/css/themes', 'static/js/vendor'],
+  ignorePatterns: ['node_modules', 'static/css/themes', 'static/js/vendor', 'static/tests/frontend-new'],
 };

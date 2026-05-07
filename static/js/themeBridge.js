@@ -4,7 +4,6 @@ const LIGHT_FILE = 'github.css';
 const DARK_FILE = 'github-dark.css';
 const PATH_MARKER = '/static/plugins/ep_syntax_highlighting/static/css/themes/';
 
-let aceContext = null;
 let listenersAttached = false;
 
 const resolveDark = () => {
@@ -18,16 +17,19 @@ const collectThemeLinks = () => {
   document
       .querySelectorAll(`link[href*="${PATH_MARKER}"]`)
       .forEach((l) => links.push(l));
-  if (aceContext) {
-    aceContext.ace.callWithAce((ace) => {
-      const innerDoc = ace.editor.getDocument();
-      if (innerDoc) {
-        innerDoc
-            .querySelectorAll(`link[href*="${PATH_MARKER}"]`)
-            .forEach((l) => links.push(l));
-      }
-    }, 'ep_syntax_highlighting_theme_collect', false);
-  }
+  // ace_getDocument() returns the outer pad document (ace2_inner.ts runs in the outer bundle).
+  // The ace_inner iframe's document is where the theme CSS links are injected.
+  try {
+    const outerIframe = document.getElementsByName('ace_outer')[0];
+    const outerDoc = outerIframe && outerIframe.contentWindow && outerIframe.contentWindow.document;
+    const innerIframe = outerDoc && outerDoc.getElementsByName('ace_inner')[0];
+    const innerDoc = innerIframe && innerIframe.contentWindow && innerIframe.contentWindow.document;
+    if (innerDoc) {
+      innerDoc
+          .querySelectorAll(`link[href*="${PATH_MARKER}"]`)
+          .forEach((l) => links.push(l));
+    }
+  } catch (_e) { /* cross-origin or not loaded yet */ }
   return links;
 };
 
@@ -41,8 +43,7 @@ const swap = () => {
   });
 };
 
-exports.start = (ctx) => {
-  aceContext = ctx;
+exports.start = () => {
   swap();
   if (!listenersAttached) {
     if (window.matchMedia) {

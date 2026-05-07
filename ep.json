@@ -5,7 +5,9 @@
       "client_hooks": {
         "postAceInit": "ep_syntax_highlighting/static/js/index",
         "aceEditEvent": "ep_syntax_highlighting/static/js/index",
-        "aceEditorCSS": "ep_syntax_highlighting/static/js/index"
+        "aceEditorCSS": "ep_syntax_highlighting/static/js/index",
+        "aceAttribsToClasses": "ep_syntax_highlighting/static/js/index",
+        "aceInitialized": "ep_syntax_highlighting/static/js/index"
       },
       "hooks": {
         "padRemove": "ep_syntax_highlighting/index",
