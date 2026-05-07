@@ -81,14 +81,8 @@ exports.postAceInit = (hookName, context) => {
   }
 };
 
-exports.aceEditEvent = (_hookName, call) => {
-  // Only trigger re-tokenize on actual text changes. Navigation events
-  // (Home, End, arrow keys) and selection-only events should NOT cause us
-  // to apply attributes — applying setAttributesOnRange on a range that
-  // crosses the caret moves the caret to the start of the range.
-  if (call && call.callstack && call.callstack.docTextChanged) {
-    controller.onEdit();
-  }
+exports.aceEditEvent = (_hookName, _context) => {
+  controller.onEdit();
 };
 
 exports.aceEditorCSS = () => [
@@ -102,11 +96,11 @@ exports.aceAttribsToClasses = (hookName, context) => {
   if (context.key !== ATTR_KEY) return [];
   const v = context.value;
   if (!v) return [];
-  // The sentinel 'cleared' is rendered as a no-op class. Returning a
+  // The sentinel '__cleared__' is rendered as a no-op class. Returning a
   // distinct non-empty class forces Etherpad's renderer to replace the
   // previous hljs-* class with this one (rather than retaining the old
   // class because the hook returned []).
-  if (v === 'cleared') return ['ep_syntax_highlighting_cleared'];
+  if (v === '__cleared__') return ['ep_syntax_highlighting_cleared'];
   return [v];
 };
 
@@ -130,7 +124,7 @@ const applyTokenAttributesPerLine = function (updates) {
     // our aceAttribsToClasses hook returns no class for it.
     try {
       dam.setAttributesOnRange([u.line, 0], [u.line, lineLen],
-          [[ATTR_KEY, 'cleared']]);
+          [[ATTR_KEY, '__cleared__']]);
     } catch (_e) { continue; }
     if (!u.ranges) continue;
     for (const r of u.ranges) {
