@@ -51,19 +51,34 @@ const padText = () => {
 
 const tokenize = () => {
   const text = padText();
-  const lineCount = text.split('\n').length;
-  if (lineCount > MAX_LINES) {
+  const allLines = text.split('\n');
+  if (allLines.length > MAX_LINES) {
     overlay.showPausedBadge(true);
     overlay.clear(aceContext);
     return;
   }
   overlay.showPausedBadge(false);
+
+  let textForWorker = text;
+  let lineOffset = 0;
+  if (degraded) {
+    const view = overlay.viewportLineRange(aceContext);
+    const start = Math.max(0, view.first - 100);
+    const end = Math.min(allLines.length, view.last + 100);
+    textForWorker = allLines.slice(start, end).join('\n');
+    lineOffset = start;
+  }
+
+  // In degraded mode we only highlight a viewport window. Scrolling without
+  // editing does NOT trigger a re-tokenize, so off-screen content is not
+  // repainted until the next edit. Acceptable v1 trade-off; "scroll-to-paint"
+  // can land in v1.1.
   ensureWorker().postMessage({
     id: nextId++,
-    text,
+    text: textForWorker,
     language: state.language,
     autoDetect: state.autoDetect,
-    lineOffset: 0,
+    lineOffset,
   });
   if (state.autoDetect) lastDetect = Date.now();
 };
