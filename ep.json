@@ -1,0 +1,11 @@
+{
+  "parts": [
+    {
+      "name": "main",
+      "client_hooks": {
+        "postAceInit": "ep_syntax_highlighting/static/js/index"
+      },
+      "hooks": {}
+    }
+  ]
+}
