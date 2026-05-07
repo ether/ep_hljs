@@ -1,7 +1,7 @@
-import {expect, test, Page, Browser} from '@playwright/test';
+import {expect, test, Page} from '@playwright/test';
 import {goToNewPad} from 'ep_etherpad-lite/tests/frontend-new/helper/padHelper';
 
-test.setTimeout(45_000);
+test.setTimeout(60_000);
 
 const inner = (page: Page) => page
     .frameLocator('iframe[name="ace_outer"]')
@@ -16,6 +16,16 @@ const setupPad = async (page: Page) => {
   await page.waitForTimeout(300);
 };
 
+const pickLanguage = async (page: Page, value: string) => {
+  const niceWrapper = page.locator('#ep_syntax_highlighting_li .nice-select');
+  if (await niceWrapper.count() > 0) {
+    await niceWrapper.click();
+    await page.locator(`#ep_syntax_highlighting_li .nice-select .option[data-value="${value}"]`).click();
+  } else {
+    await page.locator('#ep_syntax_highlighting_select').selectOption(value);
+  }
+};
+
 const repSelStart = async (page: Page): Promise<[number, number] | null> => {
   return await page.evaluate(() => {
     try {
@@ -24,20 +34,17 @@ const repSelStart = async (page: Page): Promise<[number, number] | null> => {
       const innerDoc = inner.contentDocument!;
       const sel = innerDoc.getSelection();
       if (!sel || !sel.anchorNode) return null;
-      // Walk up from the anchor to the line div (id starts with "magicdomid").
       let lineEl: Node | null = sel.anchorNode;
       while (lineEl && (!(lineEl as Element).id || !((lineEl as Element).id || '').startsWith('magicdomid'))) {
         lineEl = lineEl.parentNode;
       }
       if (!lineEl) return null;
-      // Line index = position of this div among all magicdomid siblings.
       const allLines = innerDoc.querySelectorAll('div[id^="magicdomid"]');
       let lineIdx = -1;
       for (let i = 0; i < allLines.length; i++) {
         if (allLines[i] === lineEl) { lineIdx = i; break; }
       }
       if (lineIdx < 0) return null;
-      // Column = text-content offset within the line up to the anchor.
       const treeWalker = innerDoc.createTreeWalker(lineEl as Node, NodeFilter.SHOW_TEXT);
       let col = 0;
       let cur: Node | null;
@@ -50,39 +57,39 @@ const repSelStart = async (page: Page): Promise<[number, number] | null> => {
   });
 };
 
-test('caret on line 0 stays put when another user edits the same line', async ({browser}) => {
-  // User A
+test('user-reported repro: const foo = "bar"; with JS, B edits "bar" while A is on line 0', async ({browser}) => {
+  // ---- USER A ----
   const ctxA = await browser.newContext();
   const pageA = await ctxA.newPage();
   await setupPad(pageA);
-  await pageA.keyboard.type('let foo = "bar";');
+  await pickLanguage(pageA, 'javascript');
+  await page_typeOnA(pageA);
   await pageA.waitForTimeout(2000);
 
   const padUrl = pageA.url();
 
-  // User B on same pad
-  const ctxB = await browser.newContext();
-  const pageB = await ctxB.newPage();
-  await pageB.goto(padUrl);
-  await pageB.waitForTimeout(1500);
-
-  // User A: move caret to line 0, col 1.
+  // Move A's caret to line 0 col 1.
   await pageA.keyboard.press('Home');
+  await pageA.waitForTimeout(300);
   await pageA.keyboard.press('ArrowRight');
-  await pageA.waitForTimeout(500);
+  await pageA.waitForTimeout(300);
   const beforeA = await repSelStart(pageA);
   console.log('A caret before B edits:', beforeA);
   expect(beforeA).toEqual([0, 1]);
 
-  // User B: change "bar" to "baz". Click at end of line, then arrow-left to
-  // position before the closing quote, select "bar" with shift+arrow-left*3,
-  // type "baz".
+  // ---- USER B ----
+  const ctxB = await browser.newContext();
+  const pageB = await ctxB.newPage();
+  await pageB.goto(padUrl);
+  await pageB.waitForTimeout(2000);
+
+  // B edits "bar" → "baz".
   await inner(pageB).locator('body').click();
   await pageB.keyboard.press('Control+End');
-  // Position: end of line 0. Go left past `;`, `"`.
+  // Position past `;`, `"` to land on `r` of "bar".
   await pageB.keyboard.press('ArrowLeft'); // before `;`
   await pageB.keyboard.press('ArrowLeft'); // before `"`
-  // Select "bar" backwards
+  // Select "bar" backwards (3 chars).
   await pageB.keyboard.down('Shift');
   await pageB.keyboard.press('ArrowLeft');
   await pageB.keyboard.press('ArrowLeft');
@@ -91,7 +98,6 @@ test('caret on line 0 stays put when another user edits the same line', async ({
   await pageB.keyboard.type('baz');
   await pageB.waitForTimeout(2500);
 
-  // User A's caret should still be at [0, 1].
   const afterA = await repSelStart(pageA);
   console.log('A caret after B edits:', afterA);
   expect(afterA).toEqual([0, 1]);
@@ -99,3 +105,10 @@ test('caret on line 0 stays put when another user edits the same line', async ({
   await ctxA.close();
   await ctxB.close();
 });
+
+const page_typeOnA = async (pageA: Page) => {
+  // Use evaluate-based dispatch of literal characters? No — keyboard.type
+  // is fine; just need to wrap because the quotes in the string require
+  // shift handling that Playwright handles for us when using `type`.
+  await pageA.keyboard.type('const foo = "bar";');
+};
