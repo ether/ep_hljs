@@ -3,25 +3,37 @@
 const fs = require('fs');
 const path = require('path');
 
-const vendorOut = path.resolve(__dirname, '..', 'static', 'js', 'vendor', 'hljs.min.js');
-const hljsEntry =
-  path.resolve(__dirname, '..', 'node_modules', 'highlight.js', 'lib', 'common.js');
+const repoRoot = path.resolve(__dirname, '..');
+const vendorOut = path.join(repoRoot, 'static', 'js', 'vendor', 'hljs.min.js');
 
+// 1. Themes — always copy if source available; tolerate absence if committed.
+const themesDir = path.join(repoRoot, 'static', 'css', 'themes');
+fs.mkdirSync(themesDir, {recursive: true});
+for (const name of ['github.css', 'github-dark.css']) {
+  const srcPath = path.join(repoRoot, 'node_modules', 'highlight.js', 'styles', name);
+  const dstPath = path.join(themesDir, name);
+  if (fs.existsSync(srcPath)) {
+    fs.copyFileSync(srcPath, dstPath);
+  } else if (!fs.existsSync(dstPath)) {
+    throw new Error(`[ep_syntax_highlighting] theme ${name} missing and no committed copy`);
+  }
+}
+
+// 2. JS vendor bundle — needs esbuild; tolerate absence if committed.
 const run = () => {
   let esbuild;
   try {
     // eslint-disable-next-line n/no-unpublished-require
     esbuild = require('esbuild');
   } catch {
-    // esbuild absent (production install); leave the committed vendor file as-is.
     if (!fs.existsSync(vendorOut)) {
-      throw new Error('[ep_syntax_highlighting] vendor file missing and esbuild unavailable');
+      throw new Error('[ep_syntax_highlighting] vendor JS missing and esbuild unavailable');
     }
     return;
   }
 
   esbuild.buildSync({
-    entryPoints: [hljsEntry],
+    entryPoints: [path.join(repoRoot, 'node_modules', 'highlight.js', 'lib', 'common.js')],
     bundle: true,
     globalName: 'hljs',
     format: 'iife',

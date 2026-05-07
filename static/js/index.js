@@ -45,3 +45,8 @@ exports.postAceInit = (hookName, context) => {
 exports.aceEditEvent = (_hookName, _context) => {
   controller.onEdit();
 };
+
+exports.aceEditorCSS = () => [
+  'ep_syntax_highlighting/static/css/editor.css',
+  'ep_syntax_highlighting/static/css/themes/github.css',
+];

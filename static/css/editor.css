@@ -1,0 +1,4 @@
+/* Plugin's own DOM overlay base styles. Theme colors come from the vendored hljs themes. */
+.ep_syntax_highlighting_painted span.ep_syntax_highlighting_token {
+  font-family: inherit;
+}
