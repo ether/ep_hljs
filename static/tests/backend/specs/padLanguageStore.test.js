@@ -3,7 +3,7 @@
 const assert = require('assert').strict;
 const common = require('ep_etherpad-lite/tests/backend/common');
 const padManager = require('ep_etherpad-lite/node/db/PadManager');
-const store = require('ep_syntax_highlighting/lib/padLanguageStore');
+const store = require('../../../../lib/padLanguageStore');
 
 describe(__filename, function () {
   before(async function () { await common.init(); });
