@@ -74,7 +74,6 @@ const handleWorkerResult = (data) => {
 
   newByLine.forEach((rs, line) => {
     seen.add(line);
-    if (line === skip) return;
     const sig = serializeRanges(rs);
     if (previousByLine.get(line) === sig) return;
     updates.push({line, ranges: rs});
@@ -83,6 +82,7 @@ const handleWorkerResult = (data) => {
   });
 
   // Lines that previously had tokens but no longer do → clear them.
+  // Don't clear the active line (the wide-clear apply would move the caret).
   for (const [line] of previousByLine) {
     if (!seen.has(line) && line !== skip) {
       updates.push({line, ranges: null});

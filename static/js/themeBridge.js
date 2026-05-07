@@ -7,7 +7,13 @@ const PATH_MARKER = '/static/plugins/ep_syntax_highlighting/static/css/themes/';
 let listenersAttached = false;
 
 const resolveDark = () => {
-  if (document.documentElement.classList.contains('darkMode')) return true;
+  // Etherpad signals dark mode via the html element's `super-dark-editor`
+  // class (or `dark-editor` for medium dark). Fall back to legacy
+  // class names and prefers-color-scheme for environments outside Etherpad.
+  const html = document.documentElement;
+  if (html.classList.contains('super-dark-editor')) return true;
+  if (html.classList.contains('dark-editor')) return true;
+  if (html.classList.contains('darkMode')) return true;
   if (document.body && document.body.dataset && document.body.dataset.theme === 'dark') return true;
   return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
 };

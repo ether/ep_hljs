@@ -110,32 +110,41 @@ exports.aceAttribsToClasses = (hookName, context) => {
   return [v];
 };
 
-// Applies per-line token-attribute updates. Each entry is either
-// `{line, ranges: [{start, end, cls}, ...]}` (apply) or `{line, ranges: null}` (clear).
-// We never touch the line containing the caret — the controller filters those out.
+// Applies per-line token-attribute updates. For non-active lines, does a
+// full wide clear + per-token apply. For the line containing the user's
+// caret, skips the wide clear (which would move the caret to the start of
+// the range) and skips any narrow token range that crosses the caret —
+// applying setAttributesOnRange on [a, b] when a < caret < b moves the
+// caret to a. Stale tokens on the active line will be cleared on the next
+// tokenize after the caret moves to a different line.
 const applyTokenAttributesPerLine = function (updates) {
   const dam = this.documentAttributeManager;
   const rep = this.rep;
   if (!dam || !rep || !rep.lines) return;
   const lineCount = rep.lines.length();
+  const activeLine = rep.selStart ? rep.selStart[0] : -1;
+  const activeCol = rep.selStart ? rep.selStart[1] : -1;
   for (const u of updates) {
     if (u.line < 0 || u.line >= lineCount) continue;
     const lineText = rep.lines.atIndex(u.line).text || '';
     const lineLen = lineText.length;
     if (lineLen === 0) continue;
-    // Clear this line's syntax-tk attributes by setting them to a sentinel
-    // value. Setting to '' is meant to remove the attribute, but in practice
-    // Etherpad's render seems to retain the previous CSS class until a
-    // distinct value is observed. Using a sentinel forces a re-render and
-    // our aceAttribsToClasses hook returns no class for it.
-    try {
-      dam.setAttributesOnRange([u.line, 0], [u.line, lineLen],
-          [[ATTR_KEY, '__cleared__']]);
-    } catch (_e) { continue; }
+    const isActive = u.line === activeLine;
+    if (!isActive) {
+      // Wide clear with sentinel forces Etherpad to re-render the whole line
+      // without the previously-applied hljs-* classes.
+      try {
+        dam.setAttributesOnRange([u.line, 0], [u.line, lineLen],
+            [[ATTR_KEY, '__cleared__']]);
+      } catch (_e) { continue; }
+    }
     if (!u.ranges) continue;
     for (const r of u.ranges) {
       if (!r || r.start >= r.end || !r.cls) continue;
       if (r.start < 0 || r.end > lineLen) continue;
+      // On the active line, skip ranges that strictly contain the caret —
+      // applying them would move the caret to the start of the range.
+      if (isActive && activeCol > r.start && activeCol < r.end) continue;
       try {
         dam.setAttributesOnRange([u.line, r.start], [u.line, r.end], [[ATTR_KEY, r.cls]]);
       } catch (_e) { /* skip invalid range */ }
