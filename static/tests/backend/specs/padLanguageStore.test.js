@@ -48,4 +48,16 @@ describe(__filename, function () {
     await src.remove();
     await dst.remove();
   });
+
+  it('accepts highlight.js aliases (html → xml, js → javascript)', async function () {
+    const padId1 = `lang-alias-html-${common.randomString()}`;
+    await padManager.getPad(padId1, '\n');
+    await store.set(padId1, {language: 'html', autoDetect: false});
+    assert.deepEqual(await store.get(padId1), {language: 'html', autoDetect: false});
+
+    const padId2 = `lang-alias-js-${common.randomString()}`;
+    await padManager.getPad(padId2, '\n');
+    await store.set(padId2, {language: 'js', autoDetect: false});
+    assert.deepEqual(await store.get(padId2), {language: 'js', autoDetect: false});
+  });
 });

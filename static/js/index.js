@@ -21,6 +21,9 @@ exports.postAceInit = (hookName, context) => {
   socket = io.connect('/syntax-highlighting');
   socket.on('connect', () => socket.emit('joinPad', {padId: currentPadId}));
   socket.on('languageChanged', onLanguageChanged);
+  socket.on('languageChangeRejected', (reason) => {
+    console.warn('[ep_syntax_highlighting] language change rejected:', reason && reason.error);
+  });
 
   // Apply initial state to dropdown.
   onLanguageChanged({padId: currentPadId, ...initial});
