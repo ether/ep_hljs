@@ -1,4 +1,0 @@
-{
-  "extends": ["etherpad"],
-  "ignorePatterns": ["node_modules", "static/css/themes"]
-}
