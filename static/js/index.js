@@ -19,6 +19,17 @@ const highlightToggle = padToggle({
 
 exports.handleClientMessage_CLIENT_MESSAGE = highlightToggle.handleClientMessage_CLIENT_MESSAGE;
 
+const loadHljs = () => {
+  if (typeof window !== 'undefined' && window.hljs) return Promise.resolve();
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = '/static/plugins/ep_syntax_highlighting/static/js/vendor/hljs.min.js';
+    script.onload = resolve;
+    script.onerror = resolve;
+    document.head.appendChild(script);
+  });
+};
+
 const onLanguageChanged = (msg) => {
   const sel = document.getElementById('ep_syntax_highlighting_select');
   if (sel) {
@@ -30,7 +41,8 @@ const onLanguageChanged = (msg) => {
   syntaxRenderer.setState({language: msg.language, autoDetect: !!msg.autoDetect});
 };
 
-exports.postAceInit = (hookName, context) => {
+exports.postAceInit = async (hookName, context) => {
+  await loadHljs();
   currentPadId = context.pad.getPadId();
   const initial = (typeof clientVars !== 'undefined' && clientVars.ep_syntax_highlighting) ||
     {language: 'auto', autoDetect: true};
@@ -74,5 +86,4 @@ exports.acePostWriteDomLineHTML = syntaxRenderer.acePostWriteDomLineHTML;
 
 exports.aceEditorCSS = () => [
   'ep_syntax_highlighting/static/css/editor.css',
-  'ep_syntax_highlighting/static/css/themes/github.css',
 ];

@@ -1,24 +1,52 @@
-/* Token spans inherit the editor font; theme colors come from the vendored
-   hljs themes. */
-.ep_syntax_highlighting_painted span.ep_syntax_highlighting_token {
-  font-family: inherit;
+/* CSS Custom Highlights — paint syntax tokens by Range registration in
+   highlightRegistry.js. Colors mirror the github (light) hljs theme; dark
+   variants are a follow-up. */
+::highlight(hljs-keyword)            { color: #d73a49; font-weight: bold; }
+::highlight(hljs-doctag)             { color: #d73a49; }
+::highlight(hljs-template-tag)       { color: #d73a49; }
+::highlight(hljs-template-variable)  { color: #d73a49; }
+::highlight(hljs-type)               { color: #d73a49; }
+::highlight(hljs-title)              { color: #6f42c1; }
+::highlight(hljs-attr)               { color: #005cc5; }
+::highlight(hljs-attribute)          { color: #005cc5; }
+::highlight(hljs-literal)            { color: #005cc5; }
+::highlight(hljs-meta)               { color: #005cc5; }
+::highlight(hljs-number)             { color: #005cc5; }
+::highlight(hljs-operator)           { color: #005cc5; }
+::highlight(hljs-variable)           { color: #005cc5; }
+::highlight(hljs-selector-attr)      { color: #005cc5; }
+::highlight(hljs-selector-class)     { color: #005cc5; }
+::highlight(hljs-selector-id)        { color: #005cc5; }
+::highlight(hljs-regexp)             { color: #032f62; }
+::highlight(hljs-string)             { color: #032f62; }
+::highlight(hljs-built_in)           { color: #e36209; }
+::highlight(hljs-symbol)             { color: #e36209; }
+::highlight(hljs-comment)            { color: #6a737d; font-style: italic; }
+::highlight(hljs-code)               { color: #6a737d; }
+::highlight(hljs-formula)            { color: #6a737d; }
+::highlight(hljs-name)               { color: #22863a; }
+::highlight(hljs-quote)              { color: #22863a; }
+::highlight(hljs-selector-tag)       { color: #22863a; }
+::highlight(hljs-selector-pseudo)    { color: #22863a; }
+::highlight(hljs-tag)                { color: #22863a; }
+::highlight(hljs-section)            { color: #005cc5; font-weight: bold; }
+::highlight(hljs-bullet)             { color: #735c0f; }
+::highlight(hljs-link)               { color: #032f62; text-decoration: underline; }
+::highlight(hljs-emphasis)           { font-style: italic; }
+::highlight(hljs-strong)             { font-weight: bold; }
+::highlight(hljs-addition)           { color: #22863a; background: #f0fff4; }
+::highlight(hljs-deletion)           { color: #b31d28; background: #ffeef0; }
+
+/* Authorship background colors fight syntax foreground colors and make
+   tokens hard to read. Suppress them when this plugin is loaded. Users who
+   want authorship visible can re-enable via the toolbar's "show authors"
+   button or override this rule. */
+#innerdocbody [class*="author-a"] {
+  background-color: transparent !important;
 }
 
 #ep_syntax_highlighting_paused_badge {
   margin-left: 6px;
   font-style: italic;
   opacity: 0.7;
-}
-
-/* Authorship background colors fight syntax foreground colors and make
-   tokens hard to read. Suppress them when this plugin is loaded. Users who
-   want authorship visible can re-enable via the toolbar's "show authors"
-   button (which toggles a body-level class) or override this rule. */
-#innerdocbody [class*="author-a"] {
-  background-color: transparent !important;
-}
-
-/* Spans whose syntax-tk attribute was explicitly cleared. No-op styling. */
-#innerdocbody .ep_syntax_highlighting_cleared {
-  color: inherit;
 }

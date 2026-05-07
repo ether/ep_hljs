@@ -3,8 +3,11 @@
 const lineRanges = new WeakMap();
 const classHighlights = new Map();
 
-const supports = (win) =>
-  !!(win && win.Highlight && win.CSS && win.CSS.highlights && typeof win.CSS.highlights.set === 'function');
+const supports = (win) => {
+  if (!win || !win.Highlight) return false;
+  if (!win.CSS || !win.CSS.highlights) return false;
+  return typeof win.CSS.highlights.set === 'function';
+};
 
 const getOrCreateHighlight = (win, cls) => {
   let h = classHighlights.get(cls);

@@ -1,7 +1,7 @@
 'use strict';
 
 const LRU = require('./lruCache');
-const wrapTokens = require('./textNodeWrapper');
+const {setLineRanges, clearAll} = require('./highlightRegistry');
 const {tokenize, detect} = require('./hljsAdapter');
 const {MAX_LINES, AUTO_REDETECT_MS, LRU_CAPACITY} = require('./constants');
 
@@ -14,30 +14,46 @@ let autoDetectTimer = null;
 let lastDetectAt = 0;
 
 const isHighlightingEnabled = () => {
-  if (paused) return false;
-  if (!userEnabled) return false;
-  if (!state.language) return false;
-  if (state.language === 'off') return false;
+  if (paused || !userEnabled) return false;
+  if (!state.language || state.language === 'off') return false;
   if (state.language === 'auto' && !state.autoDetect) return false;
   return true;
 };
 
+const getInnerDoc = () => {
+  const outer = document.getElementsByName('ace_outer')[0];
+  if (!outer) return null;
+  const outerDoc = outer.contentWindow && outer.contentWindow.document;
+  if (!outerDoc) return null;
+  const inner = outerDoc.getElementsByName('ace_inner')[0];
+  if (!inner) return null;
+  return inner.contentWindow && inner.contentWindow.document;
+};
+
 const renderLine = (node) => {
-  if (!node || !isHighlightingEnabled()) return;
-  // 'auto' with no detected language yet → no concrete grammar; skip.
-  if (state.language === 'auto') return;
+  if (!node) return;
+  if (!isHighlightingEnabled() || state.language === 'auto') {
+    setLineRanges(node, []);
+    return;
+  }
   const text = node.textContent;
-  if (!text) return;
+  if (!text) {
+    setLineRanges(node, []);
+    return;
+  }
   const key = `${state.language}:${text}`;
   let ranges = cache.get(key);
   if (ranges === undefined) {
     ranges = tokenize(text, state.language);
     cache.set(key, ranges);
   }
-  if (!ranges.length) return;
-  try {
-    wrapTokens(node, ranges);
-  } catch (_e) { /* render-time errors must never break the editor */ }
+  setLineRanges(node, ranges);
+};
+
+const repaintAllLines = () => {
+  const innerDoc = getInnerDoc();
+  if (!innerDoc) return;
+  innerDoc.querySelectorAll('div[id^="magicdomid"]').forEach(renderLine);
 };
 
 const padText = () => {
@@ -46,38 +62,15 @@ const padText = () => {
   try {
     aceContext.ace.callWithAce((ace) => {
       result = ace.ace_exportText();
-    }, 'syntax-read', false);
+    }, 'syntax-read');
   } catch (_e) { /* ignore */ }
   return result;
 };
 
 const lineCount = () => {
-  if (!aceContext) return 0;
-  let n = 0;
-  try {
-    aceContext.ace.callWithAce((ace) => {
-      const rep = ace.ace_getRep && ace.ace_getRep();
-      if (rep && rep.lines) n = rep.lines.length();
-    }, 'syntax-line-count', false);
-  } catch (_e) { /* ignore */ }
-  return n;
-};
-
-const repaintAllLines = () => {
-  // Walk the inner doc's line divs and re-run renderLine on each. We don't
-  // need to re-trigger Ace's render; we just re-tokenize and re-wrap based
-  // on the current state and the existing DOM contents. wrapTokens strips
-  // any previous token spans first.
-  if (!aceContext) return;
-  const outer = document.getElementsByName('ace_outer')[0];
-  if (!outer) return;
-  const outerDoc = outer.contentWindow && outer.contentWindow.document;
-  if (!outerDoc) return;
-  const inner = outerDoc.getElementsByName('ace_inner')[0];
-  if (!inner) return;
-  const innerDoc = inner.contentWindow && inner.contentWindow.document;
-  if (!innerDoc) return;
-  innerDoc.querySelectorAll('div[id^="magicdomid"]').forEach(renderLine);
+  const innerDoc = getInnerDoc();
+  if (!innerDoc) return 0;
+  return innerDoc.querySelectorAll('div[id^="magicdomid"]').length;
 };
 
 const tickAutoRedetect = () => {
@@ -87,30 +80,23 @@ const tickAutoRedetect = () => {
   const text = padText();
   if (!text) return;
   const detected = detect(text);
-  if (!detected) return;
-  if (detected === state.language) return;
+  if (!detected || detected === state.language) return;
   state = {language: detected, autoDetect: true};
   cache.clear();
+  clearAll();
   repaintAllLines();
 };
 
 const checkPaused = () => {
   const n = lineCount();
-  if (n > MAX_LINES && !paused) {
-    paused = true;
-    return true;
-  }
-  if (n <= MAX_LINES && paused) {
-    paused = false;
-    return true;
-  }
-  return false;
+  const wasPaused = paused;
+  paused = n > MAX_LINES;
+  return wasPaused !== paused;
 };
 
 exports.start = (ctx, initialState) => {
   aceContext = ctx;
   state = {...state, ...(initialState || {})};
-  // Kick off auto-detect after a short delay so initial render isn't blocked.
   setTimeout(tickAutoRedetect, 500);
   if (autoDetectTimer) clearInterval(autoDetectTimer);
   autoDetectTimer = setInterval(tickAutoRedetect, 1000);
@@ -119,18 +105,19 @@ exports.start = (ctx, initialState) => {
 exports.setState = (next) => {
   state = {...state, ...next};
   cache.clear();
+  clearAll();
   repaintAllLines();
 };
 
 exports.setUserEnabled = (enabled) => {
   if (enabled === userEnabled) return;
   userEnabled = !!enabled;
+  clearAll();
   repaintAllLines();
 };
 
-// Hook handler. Returns no DOM modification (we mutate node directly).
 exports.acePostWriteDomLineHTML = (hookName, context) => {
-  if (checkPaused()) repaintAllLines();
+  if (checkPaused() && paused) clearAll();
   if (paused) return;
   renderLine(context.node);
 };
