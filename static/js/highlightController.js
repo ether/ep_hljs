@@ -18,6 +18,10 @@ let aceContext = null;
 // Map<lineIdx, serializedRangesString>. Used to skip apply for unchanged lines.
 const previousByLine = new Map();
 
+// Set<lineIdx>. Lines that currently have any syntax-tk attribute applied.
+// Used on language change to issue CLEAR ops across all previously-painted lines.
+const everApplied = new Set();
+
 const serializeRanges = (rs) => rs
     .map((r) => `${r.start},${r.end},${r.cls}`)
     .sort()
@@ -71,6 +75,7 @@ const handleWorkerResult = (data) => {
     if (previousByLine.get(line) === sig) return;
     updates.push({line, ranges: rs});
     previousByLine.set(line, sig);
+    everApplied.add(line);
   });
 
   // Lines that previously had tokens but no longer do → clear them.
@@ -78,6 +83,7 @@ const handleWorkerResult = (data) => {
     if (!seen.has(line) && line !== skip) {
       updates.push({line, ranges: null});
       previousByLine.delete(line);
+      everApplied.delete(line);
     }
   }
 
@@ -171,7 +177,24 @@ exports.setState = (next) => {
   state = next;
   overruns = 0;
   degraded = false;
-  // Force a full re-paint by invalidating the cache.
+  // Force a full clear of every previously-painted line (except the active
+  // one, which we never disturb). The next tokenize will paint fresh tokens
+  // from scratch.
+  if (aceContext && everApplied.size) {
+    const skip = activeLineIdx();
+    const clears = [];
+    for (const line of everApplied) {
+      if (line !== skip) clears.push({line, ranges: null});
+    }
+    if (clears.length) {
+      aceContext.ace.callWithAce((ace) => {
+        if (typeof ace.ace_applyTokenAttributesPerLine === 'function') {
+          ace.ace_applyTokenAttributesPerLine(clears);
+        }
+      }, 'syntax-clear-on-lang-change', true);
+    }
+    for (const u of clears) everApplied.delete(u.line);
+  }
   previousByLine.clear();
   schedule();
 };

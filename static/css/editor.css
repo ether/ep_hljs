@@ -1,4 +1,5 @@
-/* Plugin's own DOM overlay base styles. Theme colors come from the vendored hljs themes. */
+/* Token spans inherit the editor font; theme colors come from the vendored
+   hljs themes. */
 .ep_syntax_highlighting_painted span.ep_syntax_highlighting_token {
   font-family: inherit;
 }
@@ -7,4 +8,12 @@
   margin-left: 6px;
   font-style: italic;
   opacity: 0.7;
+}
+
+/* Authorship background colors fight syntax foreground colors and make
+   tokens hard to read. Suppress them when this plugin is loaded. Users who
+   want authorship visible can re-enable via the toolbar's "show authors"
+   button (which toggles a body-level class) or override this rule. */
+#innerdocbody [class*="author-a"] {
+  background-color: transparent !important;
 }

@@ -68,3 +68,39 @@ test('caret stays put on multi-line pad when re-typing on line 0', async ({page}
   const line0 = await inner(page).locator('div[id^="magicdomid"]').nth(0).innerText();
   expect(line0).toBe('function f(){return 1;}W');
 });
+
+test('language change clears stale token colors on inactive lines', async ({page}) => {
+  await setupPad(page);
+  // Line 0: JS keyword. Line 1: random text. Move caret to line 1 so line 0
+  // becomes inactive (and gets tokens applied).
+  await page.keyboard.type('var x = 1;');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('the quick brown fox');
+  await page.waitForTimeout(2000);
+
+  // Confirm line 0 has the JS keyword token for "var".
+  const beforeKeyword = await inner(page)
+      .locator('div[id^="magicdomid"]').nth(0)
+      .locator('span.hljs-keyword').count();
+  expect(beforeKeyword).toBeGreaterThan(0);
+
+  // Change language to a JSON parser, which will produce no tokens for
+  // either line (illegal JSON). The colibris skin wraps the <select> with
+  // niceSelect so we click that instead of the hidden native element.
+  const niceWrapper = page.locator('#ep_syntax_highlighting_li .nice-select');
+  if (await niceWrapper.count() > 0) {
+    await niceWrapper.click();
+    await page.locator('#ep_syntax_highlighting_li .nice-select .option[data-value="json"]').click();
+  } else {
+    await page.locator('#ep_syntax_highlighting_select').selectOption('json');
+  }
+  await page.waitForTimeout(2500);
+
+  // The stale "var" hljs-keyword span on line 0 must be cleared. JSON
+  // doesn't recognize "var" as a keyword, so a stale-clearing implementation
+  // ends up with zero hljs-keyword spans on that line.
+  const afterKeyword = await inner(page)
+      .locator('div[id^="magicdomid"]').nth(0)
+      .locator('span.hljs-keyword').count();
+  expect(afterKeyword).toBe(0);
+});
