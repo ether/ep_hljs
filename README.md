@@ -1,6 +1,6 @@
-# ep_syntax_highlighting
+# Syntax Highlighting for Etherpad
 
-Whole-pad syntax highlighting for Etherpad, powered by [highlight.js](https://highlightjs.org/). Closes [ether/etherpad#6616](https://github.com/ether/etherpad/issues/6616).
+Code-aware editing for collaborative pads. Auto-detects language, paints tokens via the CSS Custom Highlights API (zero DOM mutation), supports 30+ grammars, and ships pad-wide language + indent controls.
 
 ![Demo](demo.gif)
 
