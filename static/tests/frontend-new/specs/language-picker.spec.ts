@@ -1,5 +1,6 @@
 import {expect, test} from '@playwright/test';
 import {goToNewPad} from 'ep_etherpad-lite/tests/frontend-new/helper/padHelper';
+import {expectHighlightWithin} from '../helper/highlights';
 
 /** Select a language via the nice-select widget that wraps the native <select>. */
 async function pickLanguage(page: import('@playwright/test').Page, value: string) {
@@ -43,8 +44,7 @@ test('picks Python and persists across reload', async ({page}) => {
   // Press Enter so the line with `def` is no longer the active line.
   await page.keyboard.press('Enter');
   await page.waitForTimeout(2000);
-  await expect(inner.locator('span.hljs-keyword').first())
-      .toBeVisible({timeout: 10_000});
+  await expectHighlightWithin(page, 'hljs-keyword', 10_000);
 
   // Wait for the language change to be committed to the server before reloading.
   await page.waitForTimeout(1000);

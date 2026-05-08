@@ -4,18 +4,20 @@
       "name": "main",
       "client_hooks": {
         "postAceInit": "ep_syntax_highlighting/static/js/index",
-        "aceEditEvent": "ep_syntax_highlighting/static/js/index",
         "aceEditorCSS": "ep_syntax_highlighting/static/js/index",
-        "aceAttribsToClasses": "ep_syntax_highlighting/static/js/index",
-        "aceInitialized": "ep_syntax_highlighting/static/js/index"
+        "acePostWriteDomLineHTML": "ep_syntax_highlighting/static/js/index",
+        "aceKeyEvent": "ep_syntax_highlighting/static/js/index",
+        "handleClientMessage_CLIENT_MESSAGE": "ep_syntax_highlighting/static/js/index"
       },
       "hooks": {
+        "loadSettings": "ep_syntax_highlighting/index",
         "padRemove": "ep_syntax_highlighting/index",
         "padCopy": "ep_syntax_highlighting/index",
         "clientVars": "ep_syntax_highlighting/index",
         "socketio": "ep_syntax_highlighting/index",
         "eejsBlock_editbarMenuLeft": "ep_syntax_highlighting/index",
         "eejsBlock_mySettings": "ep_syntax_highlighting/index",
+        "eejsBlock_padSettings": "ep_syntax_highlighting/index",
         "getLineHTMLForExport": "ep_syntax_highlighting/index",
         "stylesForExport": "ep_syntax_highlighting/index"
       }
