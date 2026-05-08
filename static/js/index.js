@@ -1,6 +1,7 @@
 'use strict';
 
 const syntaxRenderer = require('ep_syntax_highlighting/static/js/syntaxRenderer');
+const codeIndent = require('ep_syntax_highlighting/static/js/codeIndent');
 const themeBridge = require('ep_syntax_highlighting/static/js/themeBridge');
 const socketio = require('ep_etherpad-lite/static/js/socketio');
 // Sub-path import keeps the client bundle clean.
@@ -73,16 +74,24 @@ exports.postAceInit = async (hookName, context) => {
   }
 
   syntaxRenderer.start(context, initial);
+  codeIndent.start({
+    indentSize: (typeof clientVars !== 'undefined' && clientVars.ep_syntax_highlighting &&
+        clientVars.ep_syntax_highlighting.indentSize) || 2,
+    getLanguage: () => syntaxRenderer.getState().language,
+  });
   themeBridge.start();
 
-  // padToggle drives per-user / pad-wide enable. Wire it so syntaxRenderer
-  // sees toggle changes.
-  if (highlightToggle.subscribe) {
-    highlightToggle.subscribe((enabled) => syntaxRenderer.setUserEnabled(enabled));
-  }
+  // padToggle drives per-user / pad-wide enable. init() binds the checkboxes
+  // (without it, the checkboxes render unchecked even when defaultEnabled is
+  // true — the helper renders empty <input type="checkbox"> server-side and
+  // relies on init() to set the correct state from cookie/pad option/default).
+  highlightToggle.init({
+    onChange: (enabled) => syntaxRenderer.setUserEnabled(enabled),
+  });
 };
 
 exports.acePostWriteDomLineHTML = syntaxRenderer.acePostWriteDomLineHTML;
+exports.aceKeyEvent = codeIndent.handleKey;
 
 exports.aceEditorCSS = () => [
   'ep_syntax_highlighting/static/css/editor.css',

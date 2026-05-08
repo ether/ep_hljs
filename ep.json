@@ -6,6 +6,7 @@
         "postAceInit": "ep_syntax_highlighting/static/js/index",
         "aceEditorCSS": "ep_syntax_highlighting/static/js/index",
         "acePostWriteDomLineHTML": "ep_syntax_highlighting/static/js/index",
+        "aceKeyEvent": "ep_syntax_highlighting/static/js/index",
         "handleClientMessage_CLIENT_MESSAGE": "ep_syntax_highlighting/static/js/index"
       },
       "hooks": {
