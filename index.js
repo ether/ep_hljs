@@ -3,6 +3,7 @@
 const store = require('./lib/padLanguageStore');
 const eejs = require('ep_etherpad-lite/node/eejs/');
 const renderer = require('./lib/exportRenderer');
+const settings = require('ep_etherpad-lite/node/utils/Settings');
 const {padToggle} = require('ep_plugin_helpers/pad-toggle-server');
 
 // Parallel User Settings + Pad Wide Settings checkboxes for the per-user
@@ -37,12 +38,21 @@ exports.padCopy = async (hookName, {srcPad, dstPad}) => {
   }
 };
 
+// Resolve admin-configurable indent size from settings.json. Default 2; clamp
+// to a positive integer to avoid pathological values from typos.
+const resolveIndentSize = () => {
+  const raw = (settings.ep_syntax_highlighting && settings.ep_syntax_highlighting.indentSize);
+  const n = parseInt(raw, 10);
+  if (Number.isFinite(n) && n > 0 && n <= 16) return n;
+  return 2;
+};
+
 exports.clientVars = async (hook, context) => {
   const value = await store.get(context.pad.id);
   const toggleVars = await toggleClientVars(hook, context);
   return {
     ...(toggleVars || {}),
-    ep_syntax_highlighting: value,
+    ep_syntax_highlighting: {...value, indentSize: resolveIndentSize()},
   };
 };
 

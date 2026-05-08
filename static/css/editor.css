@@ -1,24 +1,26 @@
 /* CSS Custom Highlights — paint syntax tokens by Range registration in
-   highlightRegistry.js. Colors mirror the github (light) hljs theme; dark
-   variants are a follow-up. */
+   highlightRegistry.js. Light palette tuned for visibility against the
+   default white-ish editor background; dark palette below mirrors GitHub
+   dark and is scoped via the super-dark-editor skin variant Etherpad
+   sets on the inner iframe's <html>. */
 ::highlight(hljs-keyword)            { color: #d73a49; font-weight: bold; }
 ::highlight(hljs-doctag)             { color: #d73a49; }
 ::highlight(hljs-template-tag)       { color: #d73a49; }
 ::highlight(hljs-template-variable)  { color: #d73a49; }
 ::highlight(hljs-type)               { color: #d73a49; }
 ::highlight(hljs-title)              { color: #6f42c1; }
-::highlight(hljs-attr)               { color: #005cc5; }
-::highlight(hljs-attribute)          { color: #005cc5; }
-::highlight(hljs-literal)            { color: #005cc5; }
-::highlight(hljs-meta)               { color: #005cc5; }
-::highlight(hljs-number)             { color: #005cc5; }
-::highlight(hljs-operator)           { color: #005cc5; }
-::highlight(hljs-variable)           { color: #005cc5; }
-::highlight(hljs-selector-attr)      { color: #005cc5; }
-::highlight(hljs-selector-class)     { color: #005cc5; }
-::highlight(hljs-selector-id)        { color: #005cc5; }
-::highlight(hljs-regexp)             { color: #032f62; }
-::highlight(hljs-string)             { color: #032f62; }
+::highlight(hljs-attr)               { color: #3b82f6; }
+::highlight(hljs-attribute)          { color: #3b82f6; }
+::highlight(hljs-literal)            { color: #3b82f6; }
+::highlight(hljs-meta)               { color: #3b82f6; }
+::highlight(hljs-number)             { color: #3b82f6; }
+::highlight(hljs-operator)           { color: #3b82f6; }
+::highlight(hljs-variable)           { color: #3b82f6; }
+::highlight(hljs-selector-attr)      { color: #3b82f6; }
+::highlight(hljs-selector-class)     { color: #3b82f6; }
+::highlight(hljs-selector-id)        { color: #3b82f6; }
+::highlight(hljs-regexp)             { color: #1d4ed8; }
+::highlight(hljs-string)             { color: #1d4ed8; }
 ::highlight(hljs-built_in)           { color: #e36209; }
 ::highlight(hljs-symbol)             { color: #e36209; }
 ::highlight(hljs-comment)            { color: #6a737d; font-style: italic; }
@@ -29,9 +31,9 @@
 ::highlight(hljs-selector-tag)       { color: #22863a; }
 ::highlight(hljs-selector-pseudo)    { color: #22863a; }
 ::highlight(hljs-tag)                { color: #22863a; }
-::highlight(hljs-section)            { color: #005cc5; font-weight: bold; }
+::highlight(hljs-section)            { color: #3b82f6; font-weight: bold; }
 ::highlight(hljs-bullet)             { color: #735c0f; }
-::highlight(hljs-link)               { color: #032f62; text-decoration: underline; }
+::highlight(hljs-link)               { color: #1d4ed8; text-decoration: underline; }
 ::highlight(hljs-emphasis)           { font-style: italic; }
 ::highlight(hljs-strong)             { font-weight: bold; }
 ::highlight(hljs-addition)           { color: #22863a; background: #f0fff4; }
@@ -50,3 +52,41 @@
   font-style: italic;
   opacity: 0.7;
 }
+
+/* Dark mode (Etherpad's super-dark-editor skin variant). Palette taken
+   from highlight.js's github-dark.css. */
+.super-dark-editor ::highlight(hljs-keyword)           { color: #ff7b72; font-weight: bold; }
+.super-dark-editor ::highlight(hljs-doctag)            { color: #ff7b72; }
+.super-dark-editor ::highlight(hljs-template-tag)      { color: #ff7b72; }
+.super-dark-editor ::highlight(hljs-template-variable) { color: #ff7b72; }
+.super-dark-editor ::highlight(hljs-type)              { color: #ff7b72; }
+.super-dark-editor ::highlight(hljs-title)             { color: #d2a8ff; }
+.super-dark-editor ::highlight(hljs-attr)              { color: #79c0ff; }
+.super-dark-editor ::highlight(hljs-attribute)         { color: #79c0ff; }
+.super-dark-editor ::highlight(hljs-literal)           { color: #79c0ff; }
+.super-dark-editor ::highlight(hljs-meta)              { color: #79c0ff; }
+.super-dark-editor ::highlight(hljs-number)            { color: #79c0ff; }
+.super-dark-editor ::highlight(hljs-operator)          { color: #79c0ff; }
+.super-dark-editor ::highlight(hljs-variable)          { color: #79c0ff; }
+.super-dark-editor ::highlight(hljs-selector-attr)     { color: #79c0ff; }
+.super-dark-editor ::highlight(hljs-selector-class)    { color: #79c0ff; }
+.super-dark-editor ::highlight(hljs-selector-id)       { color: #79c0ff; }
+.super-dark-editor ::highlight(hljs-regexp)            { color: #a5d6ff; }
+.super-dark-editor ::highlight(hljs-string)            { color: #a5d6ff; }
+.super-dark-editor ::highlight(hljs-built_in)          { color: #ffa657; }
+.super-dark-editor ::highlight(hljs-symbol)            { color: #ffa657; }
+.super-dark-editor ::highlight(hljs-comment)           { color: #8b949e; font-style: italic; }
+.super-dark-editor ::highlight(hljs-code)              { color: #8b949e; }
+.super-dark-editor ::highlight(hljs-formula)           { color: #8b949e; }
+.super-dark-editor ::highlight(hljs-name)              { color: #7ee787; }
+.super-dark-editor ::highlight(hljs-quote)             { color: #7ee787; }
+.super-dark-editor ::highlight(hljs-selector-tag)      { color: #7ee787; }
+.super-dark-editor ::highlight(hljs-selector-pseudo)   { color: #7ee787; }
+.super-dark-editor ::highlight(hljs-tag)               { color: #7ee787; }
+.super-dark-editor ::highlight(hljs-section)           { color: #1f6feb; font-weight: bold; }
+.super-dark-editor ::highlight(hljs-bullet)            { color: #f2cc60; }
+.super-dark-editor ::highlight(hljs-link)              { color: #a5d6ff; text-decoration: underline; }
+.super-dark-editor ::highlight(hljs-emphasis)          { font-style: italic; }
+.super-dark-editor ::highlight(hljs-strong)            { font-weight: bold; }
+.super-dark-editor ::highlight(hljs-addition)          { color: #aff5b4; background: #033a16; }
+.super-dark-editor ::highlight(hljs-deletion)          { color: #ffdcd7; background: #67060c; }
