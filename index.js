@@ -3,8 +3,8 @@
 const store = require('./lib/padLanguageStore');
 const eejs = require('ep_etherpad-lite/node/eejs/');
 const renderer = require('./lib/exportRenderer');
-const settings = require('ep_etherpad-lite/node/utils/Settings');
 const {padToggle} = require('ep_plugin_helpers/pad-toggle-server');
+const {padSelect} = require('ep_plugin_helpers/pad-select-server');
 
 // Parallel User Settings + Pad Wide Settings checkboxes for the per-user
 // "Highlight syntax in pads" toggle. Helper owns checkbox rendering, cookie
@@ -17,14 +17,38 @@ const highlightToggle = padToggle({
   defaultEnabled: true,
 });
 
-exports.loadSettings = highlightToggle.loadSettings;
-exports.eejsBlock_mySettings = highlightToggle.eejsBlock_mySettings;
-exports.eejsBlock_padSettings = highlightToggle.eejsBlock_padSettings;
+// Indent size dropdown (2 vs 4 spaces) for code-mode indenting.
+const indentSelect = padSelect({
+  pluginName: 'ep_syntax_highlighting',
+  settingId: 'indent-size',
+  l10nId: 'ep_syntax_highlighting.indent_size',
+  defaultLabel: 'Indent size',
+  options: [
+    {value: 2, label: '2 spaces', l10nId: 'ep_syntax_highlighting.indent_2'},
+    {value: 4, label: '4 spaces', l10nId: 'ep_syntax_highlighting.indent_4'},
+  ],
+  defaultValue: 2,
+});
 
-// Compose padToggle.clientVars (writes ep_plugin_helpers.padToggle.<pluginName>)
-// with our own language store payload (writes ep_syntax_highlighting). They
-// live under different top-level keys so they don't collide.
+exports.loadSettings = async (hookName, args) => {
+  await highlightToggle.loadSettings(hookName, args);
+  await indentSelect.loadSettings(hookName, args);
+};
+
+exports.eejsBlock_mySettings = (hookName, args, cb) => {
+  highlightToggle.eejsBlock_mySettings(hookName, args, () => {
+    indentSelect.eejsBlock_mySettings(hookName, args, cb);
+  });
+};
+
+exports.eejsBlock_padSettings = (hookName, args, cb) => {
+  highlightToggle.eejsBlock_padSettings(hookName, args, () => {
+    indentSelect.eejsBlock_padSettings(hookName, args, cb);
+  });
+};
+
 const toggleClientVars = highlightToggle.clientVars;
+const indentClientVars = indentSelect.clientVars;
 
 exports.padRemove = async (hookName, {pad}) => {
   await store.remove(pad.id);
@@ -38,21 +62,19 @@ exports.padCopy = async (hookName, {srcPad, dstPad}) => {
   }
 };
 
-// Resolve admin-configurable indent size from settings.json. Default 2; clamp
-// to a positive integer to avoid pathological values from typos.
-const resolveIndentSize = () => {
-  const raw = (settings.ep_syntax_highlighting && settings.ep_syntax_highlighting.indentSize);
-  const n = parseInt(raw, 10);
-  if (Number.isFinite(n) && n > 0 && n <= 16) return n;
-  return 2;
-};
-
 exports.clientVars = async (hook, context) => {
   const value = await store.get(context.pad.id);
   const toggleVars = await toggleClientVars(hook, context);
+  const indentVars = await indentClientVars(hook, context);
+  // padToggle writes ep_plugin_helpers.padToggle.<pluginName>; padSelect
+  // writes ep_plugin_helpers.padSelect.<pluginName>. They live under different
+  // helper-name keys so a shallow merge of ep_plugin_helpers is enough.
   return {
-    ...(toggleVars || {}),
-    ep_syntax_highlighting: {...value, indentSize: resolveIndentSize()},
+    ep_plugin_helpers: {
+      ...((toggleVars && toggleVars.ep_plugin_helpers) || {}),
+      ...((indentVars && indentVars.ep_plugin_helpers) || {}),
+    },
+    ep_syntax_highlighting: value,
   };
 };
 

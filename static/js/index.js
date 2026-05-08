@@ -6,6 +6,7 @@ const themeBridge = require('ep_syntax_highlighting/static/js/themeBridge');
 const socketio = require('ep_etherpad-lite/static/js/socketio');
 // Sub-path import keeps the client bundle clean.
 const {padToggle} = require('ep_plugin_helpers/pad-toggle');
+const {padSelect} = require('ep_plugin_helpers/pad-select');
 
 let socket = null;
 let currentPadId = null;
@@ -18,7 +19,24 @@ const highlightToggle = padToggle({
   defaultEnabled: true,
 });
 
-exports.handleClientMessage_CLIENT_MESSAGE = highlightToggle.handleClientMessage_CLIENT_MESSAGE;
+const indentSelect = padSelect({
+  pluginName: 'ep_syntax_highlighting',
+  settingId: 'indent-size',
+  l10nId: 'ep_syntax_highlighting.indent_size',
+  defaultLabel: 'Indent size',
+  options: [
+    {value: 2, label: '2 spaces'},
+    {value: 4, label: '4 spaces'},
+  ],
+  defaultValue: 2,
+});
+
+// Both helpers re-export handleClientMessage_CLIENT_MESSAGE so each can refresh
+// its own UI on padoptions broadcasts; chain both invocations.
+exports.handleClientMessage_CLIENT_MESSAGE = (hookName, ctx) => {
+  highlightToggle.handleClientMessage_CLIENT_MESSAGE(hookName, ctx);
+  indentSelect.handleClientMessage_CLIENT_MESSAGE(hookName, ctx);
+};
 
 const loadHljs = () => {
   if (typeof window !== 'undefined' && window.hljs) return Promise.resolve();
@@ -75,8 +93,7 @@ exports.postAceInit = async (hookName, context) => {
 
   syntaxRenderer.start(context, initial);
   codeIndent.start({
-    indentSize: (typeof clientVars !== 'undefined' && clientVars.ep_syntax_highlighting &&
-        clientVars.ep_syntax_highlighting.indentSize) || 2,
+    indentSize: 2, // padSelect.init() fires onChange synchronously below with the effective value
     getLanguage: () => syntaxRenderer.getState().language,
   });
   themeBridge.start();
@@ -87,6 +104,14 @@ exports.postAceInit = async (hookName, context) => {
   // relies on init() to set the correct state from cookie/pad option/default).
   highlightToggle.init({
     onChange: (enabled) => syntaxRenderer.setUserEnabled(enabled),
+  });
+
+  // padSelect drives the indent-size dropdown. init() fires onChange once with
+  // the effective initial value (cookie / pad option / default), and again
+  // whenever the user changes the dropdown OR a remote padoptions broadcast
+  // arrives via handleClientMessage_CLIENT_MESSAGE.
+  indentSelect.init({
+    onChange: (size) => codeIndent.setIndentSize(size),
   });
 };
 
