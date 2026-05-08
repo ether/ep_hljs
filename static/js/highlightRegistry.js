@@ -43,7 +43,9 @@ const buildRange = (doc, segs, start, end) => {
       startNode = seg.node;
       startOff = start - seg.start;
     }
-    if (!endNode && end > seg.start && end <= segEnd) {
+    // We break the moment endNode is set, so by the time we reach this
+    // condition again endNode is guaranteed null — no `!endNode` needed.
+    if (end > seg.start && end <= segEnd) {
       endNode = seg.node;
       endOff = end - seg.start;
       break;

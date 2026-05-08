@@ -1,11 +1,5 @@
 import {Page} from '@playwright/test';
 
-const innerWindowHandle = (page: Page) => page.evaluate(() => {
-  const outer = document.querySelector('iframe[name="ace_outer"]') as HTMLIFrameElement;
-  const inner = outer && outer.contentDocument!.querySelector('iframe[name="ace_inner"]') as HTMLIFrameElement;
-  return inner ? inner.contentWindow : null;
-});
-
 export const highlightCount = async (page: Page, cls: string): Promise<number> => {
   return page.evaluate((c) => {
     const outer = document.querySelector('iframe[name="ace_outer"]') as HTMLIFrameElement;

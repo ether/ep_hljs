@@ -6,13 +6,16 @@
 // closing </span>.
 const SPAN_RE = /<span class="([^"]+)">|<\/span>/g;
 
-const decodeEntities = (s) => s
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ');
+// Single-pass entity decoder. A naive sequence of .replace(&amp;, &) followed
+// by .replace(&lt;, <) double-decodes input like "&amp;lt;" into "<", which
+// is wrong (it should stay as "&lt;"). One regex with a dispatch table
+// processes each entity exactly once.
+const ENTITIES = {
+  '&amp;': '&', '&lt;': '<', '&gt;': '>',
+  '&quot;': '"', '&#39;': "'", '&nbsp;': ' ',
+};
+const ENTITY_RE = /&(?:amp|lt|gt|quot|#39|nbsp);/g;
+const decodeEntities = (s) => s.replace(ENTITY_RE, (m) => ENTITIES[m]);
 
 // hljs sometimes emits multi-class spans (e.g. `<span class="hljs-meta hljs-string">`).
 // CSS Highlights names are <custom-ident>, which can't contain spaces, so we

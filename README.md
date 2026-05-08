@@ -2,6 +2,8 @@
 
 Whole-pad syntax highlighting for Etherpad, powered by [highlight.js](https://highlightjs.org/). Closes [ether/etherpad#6616](https://github.com/ether/etherpad/issues/6616).
 
+![Demo](demo.gif)
+
 ## Features
 
 - Auto-detects the pad's language (or pick from a toolbar dropdown).
