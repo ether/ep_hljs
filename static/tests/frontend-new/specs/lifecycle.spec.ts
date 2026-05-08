@@ -9,9 +9,9 @@ test('highlights a JS keyword after debounce', async ({page}) => {
 
   // Select JavaScript explicitly so auto-detect doesn't mis-classify the
   // pad's default "Welcome to Etherpad!" boilerplate.
-  const niceWrapper = page.locator('#ep_syntax_highlighting_li .nice-select');
+  const niceWrapper = page.locator('#ep_hljs_li .nice-select');
   await niceWrapper.click();
-  await page.locator('#ep_syntax_highlighting_li .nice-select .option[data-value="javascript"]').click();
+  await page.locator('#ep_hljs_li .nice-select .option[data-value="javascript"]').click();
 
   const inner = page.frameLocator('iframe[name="ace_outer"]').frameLocator('iframe[name="ace_inner"]');
   // Clear the welcome-text boilerplate so the only content is our JS snippet.

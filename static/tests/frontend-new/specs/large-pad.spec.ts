@@ -8,9 +8,9 @@ test('5000-line JS pad still highlights and stays responsive', async ({page, con
   await goToNewPad(page);
 
   // Select JavaScript explicitly so all lines are highlighted as JS.
-  const niceWrapper = page.locator('#ep_syntax_highlighting_li .nice-select');
+  const niceWrapper = page.locator('#ep_hljs_li .nice-select');
   await niceWrapper.click();
-  await page.locator('#ep_syntax_highlighting_li .nice-select .option[data-value="javascript"]').click();
+  await page.locator('#ep_hljs_li .nice-select .option[data-value="javascript"]').click();
 
   const inner = page.frameLocator('iframe[name="ace_outer"]').frameLocator('iframe[name="ace_inner"]');
   // Clear existing boilerplate content.

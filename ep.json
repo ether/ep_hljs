@@ -3,23 +3,23 @@
     {
       "name": "main",
       "client_hooks": {
-        "postAceInit": "ep_syntax_highlighting/static/js/index",
-        "aceEditorCSS": "ep_syntax_highlighting/static/js/index",
-        "acePostWriteDomLineHTML": "ep_syntax_highlighting/static/js/index",
-        "aceKeyEvent": "ep_syntax_highlighting/static/js/index",
-        "handleClientMessage_CLIENT_MESSAGE": "ep_syntax_highlighting/static/js/index"
+        "postAceInit": "ep_hljs/static/js/index",
+        "aceEditorCSS": "ep_hljs/static/js/index",
+        "acePostWriteDomLineHTML": "ep_hljs/static/js/index",
+        "aceKeyEvent": "ep_hljs/static/js/index",
+        "handleClientMessage_CLIENT_MESSAGE": "ep_hljs/static/js/index"
       },
       "hooks": {
-        "loadSettings": "ep_syntax_highlighting/index",
-        "padRemove": "ep_syntax_highlighting/index",
-        "padCopy": "ep_syntax_highlighting/index",
-        "clientVars": "ep_syntax_highlighting/index",
-        "socketio": "ep_syntax_highlighting/index",
-        "eejsBlock_editbarMenuLeft": "ep_syntax_highlighting/index",
-        "eejsBlock_mySettings": "ep_syntax_highlighting/index",
-        "eejsBlock_padSettings": "ep_syntax_highlighting/index",
-        "getLineHTMLForExport": "ep_syntax_highlighting/index",
-        "stylesForExport": "ep_syntax_highlighting/index"
+        "loadSettings": "ep_hljs/index",
+        "padRemove": "ep_hljs/index",
+        "padCopy": "ep_hljs/index",
+        "clientVars": "ep_hljs/index",
+        "socketio": "ep_hljs/index",
+        "eejsBlock_editbarMenuLeft": "ep_hljs/index",
+        "eejsBlock_mySettings": "ep_hljs/index",
+        "eejsBlock_padSettings": "ep_hljs/index",
+        "getLineHTMLForExport": "ep_hljs/index",
+        "stylesForExport": "ep_hljs/index"
       }
     }
   ]

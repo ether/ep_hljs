@@ -1,10 +1,10 @@
 {
-  "ep_syntax_highlighting.label": "Syntax language",
-  "ep_syntax_highlighting.auto": "Auto-detect",
-  "ep_syntax_highlighting.off": "Off (no highlighting)",
-  "ep_syntax_highlighting.paused": "Highlighting paused (pad too large)",
-  "ep_syntax_highlighting.user_enable": "Highlight syntax in pads",
-  "ep_syntax_highlighting.indent_size": "Indent size",
-  "ep_syntax_highlighting.indent_2": "2 spaces",
-  "ep_syntax_highlighting.indent_4": "4 spaces"
+  "ep_hljs.label": "Syntax language",
+  "ep_hljs.auto": "Auto-detect",
+  "ep_hljs.off": "Off (no highlighting)",
+  "ep_hljs.paused": "Highlighting paused (pad too large)",
+  "ep_hljs.user_enable": "Highlight syntax in pads",
+  "ep_hljs.indent_size": "Indent size",
+  "ep_hljs.indent_2": "2 spaces",
+  "ep_hljs.indent_4": "4 spaces"
 }

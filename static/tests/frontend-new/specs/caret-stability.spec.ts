@@ -89,12 +89,12 @@ test('language change clears stale token colors on inactive lines', async ({page
   // Change language to a JSON parser, which will produce no tokens for
   // either line (illegal JSON). The colibris skin wraps the <select> with
   // niceSelect so we click that instead of the hidden native element.
-  const niceWrapper = page.locator('#ep_syntax_highlighting_li .nice-select');
+  const niceWrapper = page.locator('#ep_hljs_li .nice-select');
   if (await niceWrapper.count() > 0) {
     await niceWrapper.click();
-    await page.locator('#ep_syntax_highlighting_li .nice-select .option[data-value="json"]').click();
+    await page.locator('#ep_hljs_li .nice-select .option[data-value="json"]').click();
   } else {
-    await page.locator('#ep_syntax_highlighting_select').selectOption('json');
+    await page.locator('#ep_hljs_select').selectOption('json');
   }
   await page.waitForTimeout(2500);
 

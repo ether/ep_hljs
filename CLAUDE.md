@@ -1,4 +1,4 @@
-# Claude Code Guidelines for `ep_syntax_highlighting`
+# Claude Code Guidelines for `ep_hljs`
 
 Whole-pad syntax highlighting for Etherpad, powered by highlight.js, painted via the **CSS Custom Highlights API**. This file is the architectural reference for anyone (Claude or human) extending the plugin.
 
@@ -88,7 +88,7 @@ Each client runs `hljs.highlightAuto(padText)` on a 2s idle interval. Convergenc
 ## Settings (server-side)
 
 ```json
-"ep_syntax_highlighting": {
+"ep_hljs": {
   "indentSize": 2
 }
 ```
@@ -101,11 +101,11 @@ All user-facing strings have `data-l10n-id` and a fallback English string. Keys 
 
 | Key | Where |
 |---|---|
-| `ep_syntax_highlighting.label` | toolbar dropdown aria-label |
-| `ep_syntax_highlighting.auto` | dropdown "Auto-detect" option |
-| `ep_syntax_highlighting.off` | dropdown "Off" option |
-| `ep_syntax_highlighting.paused` | "Highlighting paused" badge |
-| `ep_syntax_highlighting.user_enable` | padToggle checkbox label |
+| `ep_hljs.label` | toolbar dropdown aria-label |
+| `ep_hljs.auto` | dropdown "Auto-detect" option |
+| `ep_hljs.off` | dropdown "Off" option |
+| `ep_hljs.paused` | "Highlighting paused" badge |
+| `ep_hljs.user_enable` | padToggle checkbox label |
 
 Programming language names (`JavaScript`, `Python`, etc.) are intentionally **not** translated — they're proper nouns / fixed identifiers in the hljs grammar registry.
 
@@ -122,11 +122,11 @@ Programming language names (`JavaScript`, `Python`, etc.) are intentionally **no
 ```bash
 # Backend (jsdom + mocha)
 cd etherpad-lite/src && npx cross-env NODE_ENV=production mocha --import=tsx --timeout 30000 \
-  $(find plugin_packages -path '*ep_syntax_highlighting*/static/tests/backend/specs/*.test.js' | tr '\n' ' ')
+  $(find plugin_packages -path '*ep_hljs*/static/tests/backend/specs/*.test.js' | tr '\n' ' ')
 
 # Frontend (Playwright)
 cd etherpad-lite/src && CI=true pnpm exec playwright test --project=chromium --reporter=line --workers=1 --retries=0 \
-  $(find plugin_packages -path '*ep_syntax_highlighting*/static/tests/frontend-new/specs/*.spec.ts' | tr '\n' ' ')
+  $(find plugin_packages -path '*ep_hljs*/static/tests/frontend-new/specs/*.spec.ts' | tr '\n' ' ')
 ```
 
 Backend (38 cases): `lruCache`, `highlightRegistry` (jsdom Range building), `codeIndent` (Enter/Tab/Shift+Tab logic with mocked rep+editorInfo), `hljsAdapter` (parseHljsHtml multi-class + entities), `padLanguageStore`, `socket`, `export`.

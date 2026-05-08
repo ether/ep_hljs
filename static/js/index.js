@@ -1,8 +1,8 @@
 'use strict';
 
-const syntaxRenderer = require('ep_syntax_highlighting/static/js/syntaxRenderer');
-const codeIndent = require('ep_syntax_highlighting/static/js/codeIndent');
-const themeBridge = require('ep_syntax_highlighting/static/js/themeBridge');
+const syntaxRenderer = require('ep_hljs/static/js/syntaxRenderer');
+const codeIndent = require('ep_hljs/static/js/codeIndent');
+const themeBridge = require('ep_hljs/static/js/themeBridge');
 const socketio = require('ep_etherpad-lite/static/js/socketio');
 // Sub-path import keeps the client bundle clean.
 const {padToggle} = require('ep_plugin_helpers/pad-toggle');
@@ -12,17 +12,17 @@ let socket = null;
 let currentPadId = null;
 
 const highlightToggle = padToggle({
-  pluginName: 'ep_syntax_highlighting',
+  pluginName: 'ep_hljs',
   settingId: 'syntax-highlighting',
-  l10nId: 'ep_syntax_highlighting.user_enable',
+  l10nId: 'ep_hljs.user_enable',
   defaultLabel: 'Highlight syntax in pads',
   defaultEnabled: true,
 });
 
 const indentSelect = padSelect({
-  pluginName: 'ep_syntax_highlighting',
+  pluginName: 'ep_hljs',
   settingId: 'indent-size',
-  l10nId: 'ep_syntax_highlighting.indent_size',
+  l10nId: 'ep_hljs.indent_size',
   defaultLabel: 'Indent size',
   options: [
     {value: 2, label: '2 spaces'},
@@ -42,7 +42,7 @@ const loadHljs = () => {
   if (typeof window !== 'undefined' && window.hljs) return Promise.resolve();
   return new Promise((resolve) => {
     const script = document.createElement('script');
-    script.src = '/static/plugins/ep_syntax_highlighting/static/js/vendor/hljs.min.js';
+    script.src = '/static/plugins/ep_hljs/static/js/vendor/hljs.min.js';
     script.onload = resolve;
     script.onerror = resolve;
     document.head.appendChild(script);
@@ -50,7 +50,7 @@ const loadHljs = () => {
 };
 
 const onLanguageChanged = (msg) => {
-  const sel = document.getElementById('ep_syntax_highlighting_select');
+  const sel = document.getElementById('ep_hljs_select');
   if (sel) {
     const newVal = msg.autoDetect ? 'auto' : msg.language;
     sel.value = newVal;
@@ -63,7 +63,7 @@ const onLanguageChanged = (msg) => {
 exports.postAceInit = async (hookName, context) => {
   await loadHljs();
   currentPadId = context.pad.getPadId();
-  const initial = (typeof clientVars !== 'undefined' && clientVars.ep_syntax_highlighting) ||
+  const initial = (typeof clientVars !== 'undefined' && clientVars.ep_hljs) ||
     {language: 'auto', autoDetect: true};
 
   const pad = require('ep_etherpad-lite/static/js/pad');
@@ -71,11 +71,11 @@ exports.postAceInit = async (hookName, context) => {
   socket.on('connect', () => socket.emit('joinPad', {padId: currentPadId}));
   socket.on('languageChanged', onLanguageChanged);
   socket.on('languageChangeRejected', (reason) => {
-    console.warn('[ep_syntax_highlighting] language change rejected:', reason && reason.error);
+    console.warn('[ep_hljs] language change rejected:', reason && reason.error);
   });
 
   // Reflect initial language in the dropdown without dispatching a change event.
-  const sel = document.getElementById('ep_syntax_highlighting_select');
+  const sel = document.getElementById('ep_hljs_select');
   if (sel) {
     sel.value = initial.autoDetect ? 'auto' : initial.language;
     const $ = window.$;
@@ -120,5 +120,5 @@ exports.acePostWriteDomLineHTML = syntaxRenderer.acePostWriteDomLineHTML;
 exports.aceKeyEvent = codeIndent.handleKey;
 
 exports.aceEditorCSS = () => [
-  'ep_syntax_highlighting/static/css/editor.css',
+  'ep_hljs/static/css/editor.css',
 ];

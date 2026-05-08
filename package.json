@@ -1,5 +1,5 @@
 {
-  "name": "ep_syntax_highlighting",
+  "name": "ep_hljs",
   "version": "0.1.1",
   "description": "Whole-pad syntax highlighting for Etherpad via highlight.js. Auto-detect or pick a language; tokens are painted via the CSS Custom Highlights API — no DOM mutation, no caret drift.",
   "license": "Apache-2.0",
@@ -7,13 +7,13 @@
     "name": "John McLear",
     "email": "john@mclear.co.uk"
   },
-  "homepage": "https://github.com/ether/ep_syntax_highlighting#readme",
+  "homepage": "https://github.com/ether/ep_hljs#readme",
   "bugs": {
-    "url": "https://github.com/ether/ep_syntax_highlighting/issues"
+    "url": "https://github.com/ether/ep_hljs/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ether/ep_syntax_highlighting.git"
+    "url": "https://github.com/ether/ep_hljs.git"
   },
   "engines": {
     "node": ">=18.0.0"

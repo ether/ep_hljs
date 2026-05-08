@@ -15,7 +15,7 @@ for (const name of ['github.css', 'github-dark.css']) {
   if (fs.existsSync(srcPath)) {
     fs.copyFileSync(srcPath, dstPath);
   } else if (!fs.existsSync(dstPath)) {
-    throw new Error(`[ep_syntax_highlighting] theme ${name} missing and no committed copy`);
+    throw new Error(`[ep_hljs] theme ${name} missing and no committed copy`);
   }
 }
 
@@ -27,7 +27,7 @@ const run = () => {
     esbuild = require('esbuild');
   } catch {
     if (!fs.existsSync(vendorOut)) {
-      throw new Error('[ep_syntax_highlighting] vendor JS missing and esbuild unavailable');
+      throw new Error('[ep_hljs] vendor JS missing and esbuild unavailable');
     }
     return;
   }

@@ -18,9 +18,9 @@ test('reload of pad with persisted JS language tokenizes lines without edit', as
   await p1.keyboard.press('Delete');
   await p1.waitForTimeout(300);
 
-  const niceWrapper = p1.locator('#ep_syntax_highlighting_li .nice-select');
+  const niceWrapper = p1.locator('#ep_hljs_li .nice-select');
   await niceWrapper.click();
-  await p1.locator('#ep_syntax_highlighting_li .nice-select .option[data-value="javascript"]').click();
+  await p1.locator('#ep_hljs_li .nice-select .option[data-value="javascript"]').click();
   await inner1.locator('body').click();
   await p1.keyboard.type('const foo = "bar"; // note');
   await p1.waitForTimeout(2000);
