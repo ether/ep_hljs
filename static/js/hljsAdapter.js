@@ -14,6 +14,9 @@ const decodeEntities = (s) => s
     .replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, ' ');
 
+// hljs sometimes emits multi-class spans (e.g. `<span class="hljs-meta hljs-string">`).
+// CSS Highlights names are <custom-ident>, which can't contain spaces, so we
+// emit one range per class and let the cascade overlay them.
 const parseHljsHtml = (html) => {
   const ranges = [];
   const stack = [];
@@ -25,20 +28,28 @@ const parseHljsHtml = (html) => {
     const before = decodeEntities(html.slice(pos, m.index));
     plain += before.length;
     if (m[1] != null) {
-      stack.push({cls: m[1], start: plain});
+      stack.push({classes: m[1].split(/\s+/).filter(Boolean), start: plain});
     } else {
       const top = stack.pop();
-      if (top) ranges.push({start: top.start, end: plain, cls: top.cls});
+      if (top) {
+        for (const cls of top.classes) {
+          ranges.push({start: top.start, end: plain, cls});
+        }
+      }
     }
     pos = m.index + m[0].length;
   }
   return ranges;
 };
 
+// Returns:
+//   Array<{start,end,cls}> — token ranges (possibly empty if no tokens)
+//   null                   — hljs not yet loaded; caller should skip + retry
 const tokenize = (text, language) => {
-  if (!text || !language || language === 'auto' || language === 'off') return [];
+  if (!text) return [];
+  if (!language || language === 'auto' || language === 'off') return [];
   const hljs = (typeof window !== 'undefined') ? window.hljs : null;
-  if (!hljs) return [];
+  if (!hljs) return null;
   if (!hljs.getLanguage(language)) return [];
   let result;
   try {
@@ -55,7 +66,11 @@ const detect = (text) => {
     result = hljs.highlightAuto(text);
   } catch (_e) { return null; }
   if (!result || !result.language) return null;
-  if ((result.relevance || 0) < 5) return null;
+  // hljs scores by token-match count. A single short line of real code
+  // (e.g. `const foo = "bar"; // note`) typically scores 2-4. The previous
+  // threshold of 5 silently rejected most short pads. 2 is sensitive
+  // enough for real code without triggering on a single English word.
+  if ((result.relevance || 0) < 2) return null;
   return result.language;
 };
 
