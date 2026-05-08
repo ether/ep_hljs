@@ -9,9 +9,9 @@ test('HTML export contains hljs spans + theme CSS', async ({page, request}) => {
   const padId = padUrl.split('/p/')[1].split('?')[0];
 
   // Select JavaScript via the nice-select widget.
-  const niceWrapper = page.locator('#ep_syntax_highlighting_li .nice-select');
+  const niceWrapper = page.locator('#ep_hljs_li .nice-select');
   await niceWrapper.click();
-  await page.locator('#ep_syntax_highlighting_li .nice-select .option[data-value="javascript"]').click();
+  await page.locator('#ep_hljs_li .nice-select .option[data-value="javascript"]').click();
 
   const inner = page.frameLocator('iframe[name="ace_outer"]').frameLocator('iframe[name="ace_inner"]');
   // Clear boilerplate so only our snippet is exported.

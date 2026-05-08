@@ -15,9 +15,9 @@ const setupPad = async (page: Page) => {
 };
 
 const pickJS = async (page: Page) => {
-  const niceWrapper = page.locator('#ep_syntax_highlighting_li .nice-select');
+  const niceWrapper = page.locator('#ep_hljs_li .nice-select');
   await niceWrapper.click();
-  await page.locator('#ep_syntax_highlighting_li .nice-select .option[data-value="javascript"]').click();
+  await page.locator('#ep_hljs_li .nice-select .option[data-value="javascript"]').click();
   await inner(page).locator('body').click();
 };
 

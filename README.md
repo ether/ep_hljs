@@ -1,4 +1,4 @@
-# ep_syntax_highlighting
+# ep_hljs
 
 Whole-pad syntax highlighting for Etherpad, powered by [highlight.js](https://highlightjs.org/). Closes [ether/etherpad#6616](https://github.com/ether/etherpad/issues/6616).
 
@@ -26,7 +26,7 @@ Highlight.js detection runs on a 2-second idle timer; the LRU-cached `hljs.highl
 ## Install
 
 ```bash
-pnpm run plugins i ep_syntax_highlighting
+pnpm run plugins i ep_hljs
 ```
 
 ## Configure
@@ -34,7 +34,7 @@ pnpm run plugins i ep_syntax_highlighting
 Optional admin overrides in `settings.json`:
 
 ```json
-"ep_syntax_highlighting": {
+"ep_hljs": {
   "indent-size": 4
 }
 ```
@@ -53,4 +53,4 @@ On older browsers the editor still works — highlighting silently no-ops.
 
 ## Bugs / requests
 
-[github.com/ether/ep_syntax_highlighting/issues](https://github.com/ether/ep_syntax_highlighting/issues)
+[github.com/ether/ep_hljs/issues](https://github.com/ether/ep_hljs/issues)

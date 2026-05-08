@@ -10,22 +10,22 @@ const {padSelect} = require('ep_plugin_helpers/pad-select-server');
 // "Highlight syntax in pads" toggle. Helper owns checkbox rendering, cookie
 // persistence, broadcast/sync, enforceSettings, and i18n wiring.
 const highlightToggle = padToggle({
-  pluginName: 'ep_syntax_highlighting',
+  pluginName: 'ep_hljs',
   settingId: 'syntax-highlighting',
-  l10nId: 'ep_syntax_highlighting.user_enable',
+  l10nId: 'ep_hljs.user_enable',
   defaultLabel: 'Highlight syntax in pads',
   defaultEnabled: true,
 });
 
 // Indent size dropdown (2 vs 4 spaces) for code-mode indenting.
 const indentSelect = padSelect({
-  pluginName: 'ep_syntax_highlighting',
+  pluginName: 'ep_hljs',
   settingId: 'indent-size',
-  l10nId: 'ep_syntax_highlighting.indent_size',
+  l10nId: 'ep_hljs.indent_size',
   defaultLabel: 'Indent size',
   options: [
-    {value: 2, label: '2 spaces', l10nId: 'ep_syntax_highlighting.indent_2'},
-    {value: 4, label: '4 spaces', l10nId: 'ep_syntax_highlighting.indent_4'},
+    {value: 2, label: '2 spaces', l10nId: 'ep_hljs.indent_2'},
+    {value: 4, label: '4 spaces', l10nId: 'ep_hljs.indent_4'},
   ],
   defaultValue: 2,
 });
@@ -74,7 +74,7 @@ exports.clientVars = async (hook, context) => {
       ...((toggleVars && toggleVars.ep_plugin_helpers) || {}),
       ...((indentVars && indentVars.ep_plugin_helpers) || {}),
     },
-    ep_syntax_highlighting: value,
+    ep_hljs: value,
   };
 };
 
@@ -97,7 +97,7 @@ exports.socketio = (hookName, {io}) => {
 };
 
 exports.eejsBlock_editbarMenuLeft = (hookName, args, cb) => {
-  args.content += eejs.require('ep_syntax_highlighting/templates/editbarButtons.ejs', {}, module);
+  args.content += eejs.require('ep_hljs/templates/editbarButtons.ejs', {}, module);
   cb();
 };
 

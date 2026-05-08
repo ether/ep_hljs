@@ -18,12 +18,12 @@ const setupPad = async (page: Page) => {
 };
 
 const pickLanguage = async (page: Page, value: string) => {
-  const niceWrapper = page.locator('#ep_syntax_highlighting_li .nice-select');
+  const niceWrapper = page.locator('#ep_hljs_li .nice-select');
   if (await niceWrapper.count() > 0) {
     await niceWrapper.click();
-    await page.locator(`#ep_syntax_highlighting_li .nice-select .option[data-value="${value}"]`).click();
+    await page.locator(`#ep_hljs_li .nice-select .option[data-value="${value}"]`).click();
   } else {
-    await page.locator('#ep_syntax_highlighting_select').selectOption(value);
+    await page.locator('#ep_hljs_select').selectOption(value);
   }
 };
 

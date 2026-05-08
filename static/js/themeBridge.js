@@ -2,7 +2,7 @@
 
 const LIGHT_FILE = 'github.css';
 const DARK_FILE = 'github-dark.css';
-const PATH_MARKER = '/static/plugins/ep_syntax_highlighting/static/css/themes/';
+const PATH_MARKER = '/static/plugins/ep_hljs/static/css/themes/';
 
 let listenersAttached = false;
 
