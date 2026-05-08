@@ -34,7 +34,10 @@ jobs:
       - uses: pnpm/action-setup@v6
         name: Install pnpm
         with:
-          version: 10
+          # No `version:` here — defer to packageManager in package.json so
+          # we don't clash with etherpad-lite's pnpm version pin (the
+          # checkout above puts its package.json at cwd). See
+          # pnpm/action-setup#225.
           run_install: false
       - name: Get pnpm store directory
         shell: bash
