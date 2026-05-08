@@ -2,28 +2,24 @@
 
 Whole-pad syntax highlighting for Etherpad, powered by [highlight.js](https://highlightjs.org/). Closes [ether/etherpad#6616](https://github.com/ether/etherpad/issues/6616).
 
-## What it does
+## Features
 
-- Auto-detects the pad's language via `hljs.highlightAuto`, or pick one from the toolbar dropdown.
-- Pad-level setting; the chosen language syncs to all collaborators in real time.
-- Per-user and pad-wide enable toggles via `ep_plugin_helpers/padToggle`.
+- Auto-detects the pad's language (or pick from a toolbar dropdown).
+- The chosen language is a **pad-wide** setting and syncs to all collaborators in real time.
+- Per-user / pad-wide enable toggle in the settings panel.
+- Configurable indent size (2 or 4 spaces) with auto-indent on Enter, Tab, and Shift+Tab when a language is set.
+- Light and dark palettes — dark mode follows Etherpad's `super-dark-editor` skin variant.
 - HTML and PDF exports include the highlighting (theme CSS inlined).
 
 ## Architecture
 
-Tokens are computed at render time and painted by the browser via the [CSS Custom Highlights API](https://developer.mozilla.org/en-US/docs/Web/API/CSS_Custom_Highlight_API):
+Tokens are computed at render time and painted by the browser via the [CSS Custom Highlights API](https://developer.mozilla.org/en-US/docs/Web/API/CSS_Custom_Highlight_API) — **the DOM Etherpad's editor owns is never modified**. Range objects are registered with `CSS.highlights` and styled via `::highlight(hljs-…)` rules, so:
 
-1. The `acePostWriteDomLineHTML` hook fires after each line render.
-2. We tokenize the line text via `hljs.highlight()` (cached in an LRU keyed by `language:text`).
-3. For each token range we build a `Range` object pointing into the line's existing text nodes.
-4. The Ranges are registered with `CSS.highlights.set('hljs-keyword', new Highlight(range1, …))`.
-5. The browser composites the paint via `::highlight(hljs-…)` rules in `editor.css`.
+- Your typing never disturbs your caret.
+- Your collaborators' edits never disturb yours.
+- No Easysync attribute broadcast — zero overhead on the changeset rail.
 
-**The DOM Etherpad's Ace owns is never mutated.** No `splitText`, no `<span>` injection, no `setAttributesOnRange`, no Easysync attribute broadcast. Your typing never disturbs your caret, and your collaborators' edits never disturb yours.
-
-Auto-detect runs on a 5-second idle timer over the full pad text; when the detected language changes, the LRU cache is cleared and all line ranges are repainted.
-
-The `MAX_LINES = 5000` kill switch suspends highlighting on very large pads (toolbar shows "highlighting paused") to keep the editor responsive.
+Highlight.js detection runs on a 2-second idle timer; the LRU-cached `hljs.highlight()` runs at line-render time keyed by `language:lineText`.
 
 ## Install
 
@@ -31,22 +27,28 @@ The `MAX_LINES = 5000` kill switch suspends highlighting on very large pads (too
 pnpm run plugins i ep_syntax_highlighting
 ```
 
+## Configure
+
+Optional admin overrides in `settings.json`:
+
+```json
+"ep_syntax_highlighting": {
+  "indent-size": 4
+}
+```
+
+(`indent-size` defaults to `2`. Per-user and per-pad pickers are in the User Settings / Pad Settings panels — admins can enforce a value via this setting if desired.)
+
 ## Browser support
 
-CSS Custom Highlights is supported in:
+CSS Custom Highlights ships in:
 
 - Chrome / Edge 105+ (Sep 2022)
 - Safari 17.2+ (Dec 2023)
-- Firefox 140+ (mid-2025)
+- Firefox 140+ (mid 2025)
 
 On older browsers the editor still works — highlighting silently no-ops.
 
-## Status
+## Bugs / requests
 
-- v0.3.0 — CSS Custom Highlights architecture, all caret/collab regressions resolved.
-- Light theme only; dark mode is a follow-up commit.
-- Performance numbers on 100 / 500 / 1000 / 5000-line pads will land before v1.0.0.
-
-## Issue tracker
-
-Bugs / feature requests: [github.com/ether/ep_syntax_highlighting/issues](https://github.com/ether/ep_syntax_highlighting/issues).
+[github.com/ether/ep_syntax_highlighting/issues](https://github.com/ether/ep_syntax_highlighting/issues)

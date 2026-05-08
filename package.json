@@ -1,6 +1,6 @@
 {
   "name": "ep_syntax_highlighting",
-  "version": "0.3.0",
+  "version": "0.1.0",
   "description": "Whole-pad syntax highlighting for Etherpad via highlight.js. Auto-detect or pick a language; tokens are painted via the CSS Custom Highlights API — no DOM mutation, no caret drift.",
   "license": "Apache-2.0",
   "author": {
@@ -30,7 +30,7 @@
     "url": "https://etherpad.org/"
   },
   "dependencies": {
-    "ep_plugin_helpers": "^0.3.0",
+    "ep_plugin_helpers": "^0.4.0",
     "highlight.js": "^11.10.0"
   },
   "devDependencies": {
