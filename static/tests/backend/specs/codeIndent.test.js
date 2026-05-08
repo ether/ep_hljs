@@ -29,7 +29,11 @@ const makeEvt = (overrides = {}) => ({
 
 describe(__filename, function () {
   beforeEach(async function () {
-    codeIndent.start({indentSize: 2, getLanguage: () => 'javascript'});
+    codeIndent.start({
+      indentSize: 2,
+      getLanguage: () => 'javascript',
+      getAutoDetect: () => false, // simulate user explicitly picked the language
+    });
   });
 
   it('Enter on empty line inserts plain newline (no extra indent)', async function () {
@@ -107,7 +111,21 @@ describe(__filename, function () {
   });
 
   it('skips when language is auto (not in code mode)', async function () {
-    codeIndent.start({indentSize: 2, getLanguage: () => 'auto'});
+    codeIndent.start({indentSize: 2, getLanguage: () => 'auto', getAutoDetect: () => true});
+    const rep = makeRep(['if (x) {'], {start: [0, 8]});
+    const ei = makeEditorInfo();
+    const handled = codeIndent.handleKey('aceKeyEvent',
+        {evt: makeEvt({keyCode: 13}), rep, editorInfo: ei});
+    assert.equal(handled, false);
+    assert.equal(ei.calls.length, 0);
+  });
+
+  it('skips when autoDetect picked the language (no explicit user intent)', async function () {
+    codeIndent.start({
+      indentSize: 2,
+      getLanguage: () => 'javascript',
+      getAutoDetect: () => true, // auto-detect picked it, not the user
+    });
     const rep = makeRep(['if (x) {'], {start: [0, 8]});
     const ei = makeEditorInfo();
     const handled = codeIndent.handleKey('aceKeyEvent',
