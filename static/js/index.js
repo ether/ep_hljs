@@ -95,6 +95,7 @@ exports.postAceInit = async (hookName, context) => {
   codeIndent.start({
     indentSize: 2, // padSelect.init() fires onChange synchronously below with the effective value
     getLanguage: () => syntaxRenderer.getState().language,
+    getAutoDetect: () => syntaxRenderer.getState().autoDetect,
   });
   themeBridge.start();
 

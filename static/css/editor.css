@@ -40,10 +40,12 @@
 ::highlight(hljs-deletion)           { color: #b31d28; background: #ffeef0; }
 
 /* Authorship background colors fight syntax foreground colors and make
-   tokens hard to read. Suppress them when this plugin is loaded. Users who
-   want authorship visible can re-enable via the toolbar's "show authors"
-   button or override this rule. */
-#innerdocbody [class*="author-a"] {
+   tokens hard to read. Suppress them only when this plugin is *actively*
+   highlighting (state.language is a real grammar AND user has highlighting
+   enabled). Plain pads — and pads where this plugin loaded but is not
+   currently painting — keep their author backgrounds untouched, so core
+   Etherpad tests for authorship rendering pass unaffected. */
+.ep-syntax-highlighting-active [class*="author-a"] {
   background-color: transparent !important;
 }
 

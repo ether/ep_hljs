@@ -99,6 +99,17 @@ const checkPaused = () => {
   return wasPaused !== paused;
 };
 
+// Toggle a marker class on the inner iframe's body when this plugin is
+// actively painting. Lets editor.css scope plugin-specific CSS rules (e.g.
+// the authorship-bg suppression) so they only apply to pads with
+// highlighting on — keeps core Etherpad tests on plain pads unaffected.
+const updateActiveClass = () => {
+  const innerDoc = getInnerDoc();
+  if (!innerDoc || !innerDoc.body) return;
+  const active = isHighlightingEnabled() && state.language && state.language !== 'auto';
+  innerDoc.body.classList.toggle('ep-syntax-highlighting-active', !!active);
+};
+
 exports.start = (ctx, initialState) => {
   aceContext = ctx;
   state = {...state, ...(initialState || {})};
@@ -111,7 +122,7 @@ exports.start = (ctx, initialState) => {
   // acePostWriteDomLineHTML hook short-circuits and leaves them un-tokenized.
   // Repaint once now that state and hljs are ready. Small timeout so the inner
   // iframe is fully populated.
-  setTimeout(repaintAllLines, 100);
+  setTimeout(() => { repaintAllLines(); updateActiveClass(); }, 100);
 };
 
 exports.setState = (next) => {
@@ -119,6 +130,7 @@ exports.setState = (next) => {
   cache.clear();
   clearAll();
   repaintAllLines();
+  updateActiveClass();
 };
 
 exports.setUserEnabled = (enabled) => {

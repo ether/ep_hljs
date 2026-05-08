@@ -2,6 +2,7 @@
 
 let indentSize = 2;
 let getLanguage = () => null;
+let getAutoDetect = () => true;
 
 exports.start = (opts) => {
   if (opts && typeof opts.indentSize === 'number' && opts.indentSize > 0) {
@@ -9,6 +10,9 @@ exports.start = (opts) => {
   }
   if (opts && typeof opts.getLanguage === 'function') {
     getLanguage = opts.getLanguage;
+  }
+  if (opts && typeof opts.getAutoDetect === 'function') {
+    getAutoDetect = opts.getAutoDetect;
   }
 };
 
@@ -20,7 +24,13 @@ exports.getIndentSize = () => indentSize;
 
 const inCodeMode = () => {
   const lang = getLanguage();
-  return !!(lang && lang !== 'auto' && lang !== 'off');
+  if (!lang || lang === 'auto' || lang === 'off') return false;
+  // Only intercept Tab / Enter / Shift+Tab when the user has *explicitly*
+  // picked a language. Auto-detect picking a language under the hood does
+  // not enable keystroke interception — otherwise core Etherpad tests that
+  // paste code-shaped text into a plain pad (e.g. indentation.spec.ts)
+  // would have their Tab/Enter overridden when auto-detect kicks in.
+  return getAutoDetect() === false;
 };
 
 const indentStr = (n) => ' '.repeat(n);
