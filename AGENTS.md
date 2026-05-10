@@ -36,8 +36,8 @@ ep_hljs/
 
 * `pad-select` from `ep_plugin_helpers`
 * `pad-select-server` from `ep_plugin_helpers`
-* `pad-toggle` from `ep_plugin_helpers`
-* `pad-toggle-server` from `ep_plugin_helpers`
+* `padToggle` (client sub-path) from `ep_plugin_helpers`
+* `padToggle` (server) from `ep_plugin_helpers`
 
 
 ## Helpers NOT used
