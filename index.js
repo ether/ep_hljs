@@ -1,5 +1,7 @@
 'use strict';
 
+const {template} = require('ep_plugin_helpers');
+
 const store = require('./lib/padLanguageStore');
 const eejs = require('ep_etherpad-lite/node/eejs/');
 const renderer = require('./lib/exportRenderer');
@@ -96,10 +98,8 @@ exports.socketio = (hookName, {io}) => {
   });
 };
 
-exports.eejsBlock_editbarMenuLeft = (hookName, args, cb) => {
-  args.content += eejs.require('ep_hljs/templates/editbarButtons.ejs', {}, module);
-  cb();
-};
+exports.eejsBlock_editbarMenuLeft =
+    template('ep_hljs/templates/editbarButtons.ejs');
 
 exports.getLineHTMLForExport = async (hookName, context) => {
   if (!context || typeof context.lineContent !== 'string') return;
