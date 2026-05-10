@@ -1,6 +1,6 @@
 {
   "name": "ep_hljs",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Whole-pad syntax highlighting for Etherpad via highlight.js. Auto-detect or pick a language; tokens are painted via the CSS Custom Highlights API — no DOM mutation, no caret drift.",
   "license": "Apache-2.0",
   "author": {
