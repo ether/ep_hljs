@@ -30,7 +30,7 @@
     "url": "https://etherpad.org/"
   },
   "dependencies": {
-    "ep_plugin_helpers": "^0.4.0",
+    "ep_plugin_helpers": "^0.6.0",
     "highlight.js": "^11.10.0"
   },
   "devDependencies": {
