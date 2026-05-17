@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       ep_plugin_helpers:
-        specifier: ^0.4.0
-        version: 0.4.1
+        specifier: ^0.6.0
+        version: 0.6.1
       highlight.js:
         specifier: ^11.10.0
         version: 11.11.1
@@ -717,8 +717,8 @@ packages:
     resolution: {integrity: sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g==}
     engines: {node: '>=0.12'}
 
-  ep_plugin_helpers@0.4.1:
-    resolution: {integrity: sha512-z62pAsAepP/fdxLxYzOlth54kIN9rm18E9o1BNvd/+qms4TUrvhIXfT1R/+thqdX6CQvXtrmsRJJGYOP7eQvzg==}
+  ep_plugin_helpers@0.6.1:
+    resolution: {integrity: sha512-NVJJT7/Y2NZ2dWFskCHYbSl3jObfR0bTPW7wgdhueOGvGtwtUUbxt3s1TWeN8rfXqtpj7JePMPY5d+w7enetDA==}
     engines: {node: '>=18.0.0'}
 
   es-abstract@1.24.2:
@@ -2493,7 +2493,7 @@ snapshots:
 
   entities@6.0.1: {}
 
-  ep_plugin_helpers@0.4.1: {}
+  ep_plugin_helpers@0.6.1: {}
 
   es-abstract@1.24.2:
     dependencies:
