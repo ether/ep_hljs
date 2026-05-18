@@ -1,6 +1,6 @@
-# ep_hljs
+# Syntax Highlighting in Etherpad
 
-Whole-pad syntax highlighting for Etherpad, powered by [highlight.js](https://highlightjs.org/). Closes [ether/etherpad#6616](https://github.com/ether/etherpad/issues/6616).
+Whole-pad syntax highlighting for [Etherpad](https://etherpad.org/), powered by [highlight.js](https://highlightjs.org/).
 
 ![Demo](demo.gif)
 
